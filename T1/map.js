@@ -1,53 +1,64 @@
-import * as THREE from  'three';
+import * as THREE from 'three';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
-import {initRenderer, 
-        initCamera,
-        initDefaultBasicLight,
-        setDefaultMaterial,
-        InfoBox,
-        onWindowResize,
-        createGroundPlaneXZ} from "../libs/util/util.js";
+import {
+  setDefaultMaterial,
+} from "../libs/util/util.js";
+import { makeRandomTree } from './tree.js';
+import { getRndInteger } from './utils.js';
 
-let scene, renderer, camera, material, light, orbit;; // Initial variables
-scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer();    // Init a basic renderer
-camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
-material = setDefaultMaterial(); // create a basic material
-light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
-orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
+const MAP_COLOR = "#228b22";
+const MAP_X = 500.0;
+const MAP_Y = 0.01;
+const MAP_Z = 100.0;
+const NUM_MAX_MAP = 10;
+const MAX_NON_VISIBLE_MAPS = 1;
+const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
+const VELOCIDADE = 0.5;
+const MIN_NUM_TREES = 20;
+const MAX_NUM_TREES = 50;
 
-// Listen window size changes
-window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
+export function makeMapRow() {
+  let mapRow = [];
+  mapRow.push(makeMap());
+  for (let i = 1; i < NUM_MAX_MAP; i++) {
+    addMapInRow(mapRow);
+  }
+  return mapRow;
+}
 
-// Show axes (parameter is size of each axis)
-let axesHelper = new THREE.AxesHelper( 12 );
-scene.add( axesHelper );
+export function addMapInRow(mapRow) {
+  mapRow.push(makeMap());
+  mapRow[mapRow.length - 1].position.set(0, 0, mapRow[mapRow.length - 2].position.z + MAP_Z);
+}
 
-// create the ground plane
-let plane = createGroundPlaneXZ(20, 20)
-scene.add(plane);
+export function makeMap() {
+  let mapMaterial = new THREE.MeshPhongMaterial({ color: MAP_COLOR, shininess: "200" });
+  let mapGeometry = new THREE.BoxGeometry(MAP_X, MAP_Y, MAP_Z);
+  let map = new THREE.Mesh(mapGeometry, mapMaterial);
+  map.position.set(0.0, 0.0, 0.0);
+  let trees = [];
+  for (let i = 0; i < getRndInteger(MIN_NUM_TREES, MAX_NUM_TREES); i++) {
+    trees.push(makeRandomTree());
+    map.add(trees[trees.length - 1]);
+    trees[trees.length - 1].position.set(getRndInteger(0, MAP_X) - (MAP_X / 2),
+      (trees[trees.length - 1].geometry.parameters.height + MAP_Y) / 2,
+      getRndInteger(0, MAP_Z) - (MAP_Z / 2));
+  }
+  return map;
+}
 
-// create a cube
-let cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-let cube = new THREE.Mesh(cubeGeometry, material);
-// position the cube
-cube.position.set(0.0, 2.0, 0.0);
-// add the cube to the scene
-scene.add(cube);
+export function removeMap(scene, mapRow) {
+  mapRow[0].geometry.dispose();
+  mapRow[0].material.dispose();
+  scene.remove(mapRow[0]);
+  mapRow.shift();
+}
 
-// Use this to show information onscreen
-let controls = new InfoBox();
-  controls.add("Basic Scene");
-  controls.addParagraph();
-  controls.add("Use mouse to interact:");
-  controls.add("* Left button to rotate");
-  controls.add("* Right button to translate (pan)");
-  controls.add("* Scroll to zoom in/out.");
-  controls.show();
-
-render();
-function render()
-{
-  requestAnimationFrame(render);
-  renderer.render(scene, camera) // Render scene
+export function updateMapRow(scene, mapRow) {
+  mapRow.forEach(element => element.position.z -= VELOCIDADE);
+  if (mapRow[0].position.z <= Z_DESTINATION) {
+    removeMap(scene, mapRow)
+    addMapInRow(mapRow);
+    scene.add(mapRow[mapRow.length - 1]);
+  }
 }
