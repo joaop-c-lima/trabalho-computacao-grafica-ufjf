@@ -7,15 +7,22 @@ import {initRenderer,
         InfoBox,
         onWindowResize,
         createGroundPlaneXZ} from "../libs/util/util.js";
+import { createCamera, updateCamera } from './camera.js';
+import { createAim, updateAim } from './aim.js';
 
 let scene, renderer, camera, material, light, orbit;; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
+camera = createCamera() // Init camera in this position
 material = setDefaultMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
-orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
+//orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
 
+//Create aim
+let pointer = new THREE.Vector2();
+let raycaster = new THREE.Raycaster();
+let aim = createAim();
+scene.add(aim);
 // Listen window size changes
 window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
 
@@ -33,7 +40,7 @@ let cube = new THREE.Mesh(cubeGeometry, material);
 // position the cube
 cube.position.set(0.0, 2.0, 0.0);
 // add the cube to the scene
-scene.add(cube);
+//scene.add(cube);
 
 // Use this to show information onscreen
 let controls = new InfoBox();
@@ -50,4 +57,9 @@ function render()
 {
   requestAnimationFrame(render);
   renderer.render(scene, camera) // Render scene
+  updateAim(event.clientX, Event.clientY, aim);
+  
+  //aim.translateX(MouseEvent.clientX);
+  //aim.translateY(MouseEvent.clientY);
+  //console.log(MouseEvent.clientX);
 }

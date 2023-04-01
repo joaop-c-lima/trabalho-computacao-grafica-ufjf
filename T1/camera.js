@@ -22,6 +22,7 @@ export function createCamera(){
 
 
 export function updateCamera(){
+    
     camera.position.copy(camPos);
     camera.up.copy(camUp);
     camera.lookAt(camLook);
