@@ -8,13 +8,3 @@ export function createAim(){
     aim.position.set(0.0, 10.0, -5.0);
     return aim;
 }
-
-export function updateAim(mouseX, mouseY, aim){
-    /*aim.translateX = mouseX;
-    aim.translateY = mouseY;*/
-    //aim.position.x = (mouseX / window.innerWidth) * 2 - 1;
-    //aim.position.x = (mouseY / window.innerWidth) * 2 - 1;
-    //console.log(aim.position.x)
-    //aim.position.x = pointer.x;
-    //aim.position.y = pointer.y;
-}

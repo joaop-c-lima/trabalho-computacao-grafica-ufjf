@@ -7,7 +7,7 @@ import {initRenderer,
         onWindowResize,
         createGroundPlaneXZ} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
-import { createAim, updateAim } from './aim.js';
+import { createAim } from './aim.js';
 import { makeMapRow, updateMapRow } from './map.js';
 let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax;; // Initial variables
 scene = new THREE.Scene();    // Create main scene
@@ -28,10 +28,31 @@ light = initDefaultBasicLight(scene); // Create a basic light to illuminate the 
 let mapRow = makeMapRow();
 mapRow.forEach(element => scene.add(element));
 //Create aim
-let pointer = new THREE.Vector2();
-let raycaster = new THREE.Raycaster();
 let aim = createAim();
 scene.add(aim);
+
+//Mouse invisibility
+document.body.style.cursor = 'none';
+
+//Mouse Movement
+var mouseX = 0;
+var mouseY = 0;
+
+function onDocumentMouseMove( event ) {
+	mouseX = ( event.clientX - window.innerWidth / 2 ) / window.innerWidth * 2;
+	mouseY = ( window.innerHeight / 2 - event.clientY ) / window.innerHeight * 2;
+}
+
+//Mouse Movement Listener
+document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+//Update Aim
+function updateAim()
+{
+  aim.position.x = mouseX;
+  aim.position.y = mouseY;
+}
+
 // Listen window size changes
 window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
 
@@ -51,15 +72,6 @@ cube.position.set(0.0, 2.0, 0.0);
 // add the cube to the scene
 //scene.add(cube);
 
-// Use this to show information onscreen
-let controls = new InfoBox();
-  controls.add("Basic Scene");
-  controls.addParagraph();
-  controls.add("Use mouse to interact:");
-  controls.add("* Left button to rotate");
-  controls.add("* Right button to translate (pan)");
-  controls.add("* Scroll to zoom in/out.");
-  controls.show();
 
 render();
 function render()
