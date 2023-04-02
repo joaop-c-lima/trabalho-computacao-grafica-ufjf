@@ -9,19 +9,24 @@ import {initRenderer,
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { makeMapRow, updateMapRow } from './map.js';
-let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax;; // Initial variables
+import KeyboardState from '../libs/util/KeyboardState.js' 
+let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard;; // Initial variables
+keyboard = new KeyboardState();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
+
+//Parametros da camera
 camera = createCamera(); // Init camera in this position
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-5, 5, -25);
-camPosMax = new THREE.Vector3(5, 25, -25);
-let camLookMin = new THREE.Vector3(0, 5, -1000);
-let camLookMax = new THREE.Vector3(0, 35, 1000);
+camPosMin = new THREE.Vector3(-8, 5, -25);
+camPosMax = new THREE.Vector3(8, 25, -25);
+// camLook deve ter mais liberdade que camPos para que a camera sempre rotacione corretamente
+let camLookMin = new THREE.Vector3(-10, 3, -1000);
+let camLookMax = new THREE.Vector3(10, 35, 1000);
 
-//cameraHolder.position.set(5, 10, -25);
+
 material = setDefaultMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 //orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
@@ -64,20 +69,21 @@ scene.add( axesHelper );
 let plane = createGroundPlaneXZ(20, 20)
 scene.add(plane);
 
-// create a cube
-let cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-let cube = new THREE.Mesh(cubeGeometry, material);
-// position the cube
-cube.position.set(0.0, 2.0, 0.0);
-// add the cube to the scene
-//scene.add(cube);
-
-
+function aimControl(){
+  keyboard.update();
+  if (keyboard.pressed("S") )   aim.translateY(-1);
+  if (keyboard.pressed("W") )   aim.translateY(1);
+  if (keyboard.pressed("D") )   aim.translateX(-1);
+  if (keyboard.pressed("A") )   aim.translateX(1);
+  if (keyboard.pressed("B") )   aim.translateZ(-1);
+  if (keyboard.pressed("space") )   aim.translateZ(1);
+}
 render();
 function render()
 {
   requestAnimationFrame(render);
   renderer.render(scene, camera) // Render scene
+  aimControl();
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
   //console.log(aimPos);
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camLookMin, camLookMax);
