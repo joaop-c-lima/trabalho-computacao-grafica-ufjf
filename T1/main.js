@@ -9,15 +9,25 @@ import {initRenderer,
         createGroundPlaneXZ} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim, updateAim } from './aim.js';
-
-let scene, renderer, camera, material, light, orbit;; // Initial variables
+import { makeMapRow, updateMapRow } from './map.js';
+let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax;; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-camera = createCamera() // Init camera in this position
+camera = createCamera(); // Init camera in this position
+let cameraHolder = new THREE.Object3D();
+cameraHolder.add(camera);
+scene.add(cameraHolder);
+camPosMin = new THREE.Vector3(-5, 5, -25);
+camPosMax = new THREE.Vector3(5, 25, -25);
+let camLookMin = new THREE.Vector3(0, 5, -1000);
+let camLookMax = new THREE.Vector3(0, 35, 1000);
+
+//cameraHolder.position.set(5, 10, -25);
 material = setDefaultMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 //orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
-
+let mapRow = makeMapRow();
+mapRow.forEach(element => scene.add(element));
 //Create aim
 let pointer = new THREE.Vector2();
 let raycaster = new THREE.Raycaster();
@@ -57,7 +67,11 @@ function render()
 {
   requestAnimationFrame(render);
   renderer.render(scene, camera) // Render scene
-  updateAim(event.clientX, Event.clientY, aim);
+  aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
+  //console.log(aimPos);
+  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camLookMin, camLookMax);
+  //updateAim(event.clientX, Event.clientY, aim);
+  updateMapRow(scene, mapRow);
   
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
