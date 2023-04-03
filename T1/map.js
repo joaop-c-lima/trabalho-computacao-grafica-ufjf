@@ -7,13 +7,13 @@ import { makeRandomTree } from './tree.js';
 import { getRndInteger } from './utils.js';
 
 const MAP_COLOR = "#228b22";
-const MAP_X = 500.0;
+const MAP_X = 5000.0;
 const MAP_Y = 0.01;
 const MAP_Z = 100.0;
-const NUM_MAX_MAP = 10;
+const NUM_MAX_MAP = 40;
 const MAX_NON_VISIBLE_MAPS = 1;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
-const VELOCIDADE = 0.5;
+const VELOCIDADE = 2.5;
 const MIN_NUM_TREES = 20;
 const MAX_NUM_TREES = 50;
 

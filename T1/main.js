@@ -21,10 +21,10 @@ let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
 camPosMin = new THREE.Vector3(-8, 5, -25);
-camPosMax = new THREE.Vector3(8, 25, -25);
+camPosMax = new THREE.Vector3(8, 25, 25);
 // camLook deve ter mais liberdade que camPos para que a camera sempre rotacione corretamente
-let camLookMin = new THREE.Vector3(-10, 3, -1000);
-let camLookMax = new THREE.Vector3(10, 35, 1000);
+/*let camLookMin = new THREE.Vector3(-8, 5, -25);
+let camLookMax = new THREE.Vector3(8, 25, 1000);*/
 
 
 material = setDefaultMaterial(); // create a basic material
@@ -86,7 +86,7 @@ function render()
   aimControl();
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
   //console.log(aimPos);
-  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camLookMin, camLookMax);
+  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax);
   //updateAim(event.clientX, Event.clientY, aim);
   updateMapRow(scene, mapRow);
   

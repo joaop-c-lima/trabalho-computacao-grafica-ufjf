@@ -6,7 +6,7 @@ export function createCamera(){
 }
 
 
-export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camMin, camMax, camLookMin, camLookMax){
+export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camMin, camMax){
     
     let destination = new THREE.Vector3(aimPos.x, aimPos.y, -25);
     destination.clamp(camMin, camMax);
@@ -15,7 +15,7 @@ export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, cam
         alpha: 0.05,
         move: true
     }
-    aimPos.clamp(camLookMin, camLookMax);
+    aimPos.clamp(camMin, camMax);
     cameraHolder.position.lerp(lerpCameraConfig.destination, lerpCameraConfig.alpha);
     camera.lookAt(aimPos.x, aimPos.y, aimPos.z);
 } 
