@@ -27,7 +27,7 @@ camPosMax = new THREE.Vector3(8, 40, 50);
 let camLookMax = new THREE.Vector3(8, 25, 1000);*/
 
 
-material = setDefaultMaterial(); // create a basic material
+material = new THREE.MeshBasicMaterial("yellow"); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 //orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
 let mapRow = makeMapRow();
