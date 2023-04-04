@@ -8,9 +8,10 @@ import {initRenderer,
         createGroundPlaneXZ} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
+import { createPlane } from './createPlane.js';
 import { makeMapRow, updateMapRow } from './map.js';
 import KeyboardState from '../libs/util/KeyboardState.js' 
-let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard;; // Initial variables
+let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard, aircraft;; // Initial variables
 keyboard = new KeyboardState();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
@@ -32,6 +33,10 @@ light = initDefaultBasicLight(scene); // Create a basic light to illuminate the 
 //orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
 let mapRow = makeMapRow();
 mapRow.forEach(element => scene.add(element));
+
+//Create plane
+aircraft = createPlane(scene);
+aircraft.position.set(0.0, 30.0, -5.0);
 //Create aim
 let aim = createAim();
 scene.add(aim);
