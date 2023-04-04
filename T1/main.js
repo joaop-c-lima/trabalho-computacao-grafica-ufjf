@@ -20,8 +20,8 @@ camera = createCamera(); // Init camera in this position
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-8, 5, -25);
-camPosMax = new THREE.Vector3(8, 25, 25);
+camPosMin = new THREE.Vector3(-8, 5, -50);
+camPosMax = new THREE.Vector3(8, 40, 50);
 // camLook deve ter mais liberdade que camPos para que a camera sempre rotacione corretamente
 /*let camLookMin = new THREE.Vector3(-8, 5, -25);
 let camLookMax = new THREE.Vector3(8, 25, 1000);*/

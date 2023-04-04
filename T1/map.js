@@ -7,7 +7,7 @@ import { makeRandomTree } from './tree.js';
 import { getRndInteger } from './utils.js';
 
 const MAP_COLOR = "#228b22";
-const MAP_X = 5000.0;
+const MAP_X = 500.0;
 const MAP_Y = 0.01;
 const MAP_Z = 100.0;
 const NUM_MAX_MAP = 40;
