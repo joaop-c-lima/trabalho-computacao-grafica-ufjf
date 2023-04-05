@@ -87,6 +87,7 @@ export function createPlane(scene){
     insideMotor2.translateY(7.3);
     body.add(insideMotor2);
 
-
+    body.rotateX(THREE.MathUtils.degToRad(90));
+    body.rotateY(THREE.MathUtils.degToRad(-90));
     return body;
 }

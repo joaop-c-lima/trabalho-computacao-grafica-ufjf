@@ -83,6 +83,11 @@ function aimControl(){
   if (keyboard.pressed("B") )   aim.translateZ(-1);
   if (keyboard.pressed("space") )   aim.translateZ(1);
 }
+
+const canvas = document.querySelector("canvas");
+canvas.addEventListener("click", async () => {
+  await canvas.requestPointerLock();
+});
 render();
 function render()
 {
