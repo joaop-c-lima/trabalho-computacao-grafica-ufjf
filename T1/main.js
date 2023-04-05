@@ -38,12 +38,22 @@ function onDocumentMouseMove( event ) {
 //Mouse Movement Listener
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
+//Aim limits
+let aimPosMin = new THREE.Vector3(-3.3, -3.5, -4);
+let aimPosMax = new THREE.Vector3(3.3, 3.5, -3);
 //Update Aim
 function updateAim(e)
 {
-  console.log(e);
+  //console.log(e);
+  let aimPosMin = new THREE.Vector3(-5.7, -4.0, -4);
+  let aimPosMax = new THREE.Vector3(7.5, 4.0, -3);
   aim.position.x += e.movementX/250;
   aim.position.y -= e.movementY/250;
+  aim.position.clamp(aimPosMin, aimPosMax);
+  console.log(aim.position);
+  //console.log(aimPosMin);
+  //console.log(aim.position.x);
+  //console.log(aim.position.y);
 }
 
 //Defining lerp for Movement
@@ -94,11 +104,12 @@ const lerpConfigA = {
   move: false
 }
 
+//Pointer Lock
 const canvas = document.querySelector("canvas");
 canvas.addEventListener("click", async () => {
   await canvas.requestPointerLock();
 });
-
+//Update aim listener
 document.addEventListener("mousemove", updateAim, false);
 render();
 function render()
