@@ -38,9 +38,7 @@ function onDocumentMouseMove( event ) {
 //Mouse Movement Listener
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
-//Aim limits
-let aimPosMin = new THREE.Vector3(-3.3, -3.5, -4);
-let aimPosMax = new THREE.Vector3(3.3, 3.5, -3);
+
 //Update Aim
 function updateAim(e)
 {
