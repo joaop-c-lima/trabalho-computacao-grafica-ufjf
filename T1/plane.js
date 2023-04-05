@@ -8,10 +8,7 @@ import {initRenderer,
         onWindowResize,
         createGroundPlaneXZ,
         getMaxSize} from "../libs/util/util.js";
-<<<<<<< HEAD
 
-=======
->>>>>>> 4e52c29a8e80561cfc3631f3498d139710ee0e33
 
 
 let scene, renderer, camera, material, materialDarkYellow, materialFan, materialFanRing, materialMotor, materialCabin, light, orbit; // Initial variables
@@ -19,16 +16,11 @@ scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
 material = setDefaultMaterial('gray');
-<<<<<<< HEAD
-materialYellow = setDefaultMaterial('yellow');// create a basic material
-materialFan = new THREE.MeshBasicMaterial("yellow");
-=======
 materialDarkYellow = setDefaultMaterial('rgb(255,200,0)');
 materialMotor = setDefaultMaterial('rgb(200,200,200)');
 materialCabin =  setDefaultMaterial('rgb(180,200,200)');// create a basic material
 materialFan = new THREE.MeshLambertMaterial({color: "gray", transparent: true, opacity: 0.5});
 materialFanRing = new THREE.MeshLambertMaterial({color: "rgb(255,255,0)", transparent: true, opacity: 0.5});
->>>>>>> 4e52c29a8e80561cfc3631f3498d139710ee0e33
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
 
