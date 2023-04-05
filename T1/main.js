@@ -39,10 +39,11 @@ function onDocumentMouseMove( event ) {
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
 //Update Aim
-function updateAim()
+function updateAim(e)
 {
-  aim.position.x = mouseX;
-  aim.position.y = mouseY;
+  console.log(e);
+  aim.position.x += e.movementX/250;
+  aim.position.y -= e.movementY/250;
 }
 
 //Defining lerp for Movement
@@ -93,14 +94,19 @@ const lerpConfigA = {
   move: false
 }
 
+const canvas = document.querySelector("canvas");
+canvas.addEventListener("click", async () => {
+  await canvas.requestPointerLock();
+});
 
+document.addEventListener("mousemove", updateAim, false);
 render();
 function render()
 {
   requestAnimationFrame(render);
   renderer.render(scene, camera) // Render scene
  
-  updateAim();
+  
   updatePosition();
 
   if (lerpConfigA.move) {
