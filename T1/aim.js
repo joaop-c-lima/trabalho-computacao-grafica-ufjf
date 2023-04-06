@@ -3,18 +3,18 @@ import * as THREE from  'three';
 export function createAim(){
     //Creating a grid of points
     var vertices = [];
-    vertices.push( new THREE.Vector3( 0, 0.5, 0 ) );
-    vertices.push( new THREE.Vector3( 0, -0.5, 0 ) );
+    vertices.push( new THREE.Vector3( 0, 2.5, 0 ) );
+    vertices.push( new THREE.Vector3( 0, -2.5, 0 ) );
     vertices.push( new THREE.Vector3( 0, 0, 0 ) );
-    vertices.push( new THREE.Vector3( 0.5, 0, 0 ) );
-    vertices.push( new THREE.Vector3( -0.5, 0, 0 ) );
+    vertices.push( new THREE.Vector3( 2.5, 0, 0 ) );
+    vertices.push( new THREE.Vector3( -2.5, 0, 0 ) );
 
     var vertices2 = [];
-    vertices2.push( new THREE.Vector3( 0, 0.5, 0 ) );
-    vertices2.push( new THREE.Vector3( 0.5, 0, 0 ) );
-    vertices2.push( new THREE.Vector3( 0, -0.5, 0 ) );
-    vertices2.push( new THREE.Vector3( -0.5, 0, 0 ) );
-    vertices2.push( new THREE.Vector3( 0, 0.5, 0 ) );
+    vertices2.push( new THREE.Vector3( 0, 2.5, 0 ) );
+    vertices2.push( new THREE.Vector3( 2.5, 0, 0 ) );
+    vertices2.push( new THREE.Vector3( 0, -2.5, 0 ) );
+    vertices2.push( new THREE.Vector3( -2.5, 0, 0 ) );
+    vertices2.push( new THREE.Vector3( 0, 2.5, 0 ) );
     
     //Transforming in a Geometry
     var geometry = new THREE.BufferGeometry().setFromPoints(vertices);
@@ -25,8 +25,8 @@ export function createAim(){
     var crosshair = new THREE.Line( geometry, material );
     var crosshair2 = new THREE.Line( geometry2, material );
 
-    crosshair.position.set(3, 3, -3)
-    crosshair2.position.set(0, 0, 0.75)
+    crosshair.position.set(3, 30, 30)
+    crosshair2.position.set(0, 0, 0)
 
     crosshair.add(crosshair2)
     return crosshair;

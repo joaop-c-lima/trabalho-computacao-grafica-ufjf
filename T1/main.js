@@ -5,12 +5,14 @@ import {initRenderer,
         setDefaultMaterial,
         InfoBox,
         onWindowResize,
-        createGroundPlaneXZ} from "../libs/util/util.js";
+        createGroundPlaneXZ,
+        degreesToRadians} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
 import { makeMapRow, updateMapRow } from './map.js';
 import KeyboardState from '../libs/util/KeyboardState.js' 
+
 let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard, aircraft;; // Initial variables
 keyboard = new KeyboardState();
 scene = new THREE.Scene();    // Create main scene
@@ -30,7 +32,7 @@ let camLookMax = new THREE.Vector3(8, 25, 1000);*/
 
 material = new THREE.MeshBasicMaterial("yellow"); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
-//orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
+
 let mapRow = makeMapRow();
 mapRow.forEach(element => scene.add(element));
 
@@ -46,7 +48,6 @@ aircraft.position.set(0.0, 30.0, -5.0);
 //
 function updatePosition() {
   aircraft.position.set(aimAssist.x, aimAssist.y, 5)
-  console.log(aircraft.position)
 }
 
 
@@ -56,7 +57,7 @@ scene.add(aim);
 var aimAssist = new THREE.Vector3().copy(aim.position);
 
 //Mouse invisibility
-//document.body.style.cursor = 'none';
+document.body.style.cursor = 'none';
 
 //Mouse Movement
 const centerX = canvas.innerWidth / 2;
@@ -83,6 +84,31 @@ function updateAim()
 
 }
 
+const lerpConfig = {
+  destination: new THREE.Vector3(aimAssist.x, aimAssist.y, aimAssist.z),
+  alpha: 0.01,
+  angle: 0.0,
+  move: false
+}
+
+var y = 0, z = 0;
+function updateAnimation()
+{
+  keyboard.update();
+  if( y > -5 && y < 5 && z > -5 && z < 5) {
+  if( keyboard.pressed("D") ) { aircraft.rotateY(degreesToRadians(1.0)); z += 0.1 };
+  if( keyboard.pressed("A") ) { aircraft.rotateY(degreesToRadians(-1.0)); z -= 0.1 };
+  if( keyboard.pressed("W") ) { aircraft.rotateZ(degreesToRadians(0.5)); y += 0.1 };
+  if( keyboard.pressed("S") ) { aircraft.rotateZ(degreesToRadians(-0.5)); y -= 0.1 };
+}
+  if( !keyboard.pressed("D") && !keyboard.pressed("A") && !keyboard.pressed("W") && !keyboard.pressed("S")) {
+    if(z > 0) { aircraft.rotateY(degreesToRadians(-1.0)); z -= 0.1 }
+    if(z < 0) { aircraft.rotateY(degreesToRadians(1.0)); z += 0.1 }
+    if(y > 0) { aircraft.rotateZ(degreesToRadians(-0.5)); y -= 0.1 }
+    if(y < 0) { aircraft.rotateZ(degreesToRadians(0.5)); y += 0.1 }
+  }
+}
+
 // Listen window size changes
 window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
 
@@ -96,12 +122,12 @@ scene.add(plane);
 
 function aimControl(){
   keyboard.update();
-  if (keyboard.pressed("S") )   aim.translateY(-1);
-  if (keyboard.pressed("W") )   aim.translateY(1);
-  if (keyboard.pressed("D") )   aim.translateX(-1);
-  if (keyboard.pressed("A") )   aim.translateX(1);
-  if (keyboard.pressed("B") )   aim.translateZ(-1);
-  if (keyboard.pressed("space") )   aim.translateZ(1);
+  if ( keyboard.pressed("S") && aim.position.y >= 5 ) { aim.translateY(-1) };
+  if ( keyboard.pressed("W") && aim.position.y <= 55 ) { aim.translateY(1) };
+  if ( keyboard.pressed("D") && aim.position.x >= -40 ) { aim.translateX(-1) };
+  if ( keyboard.pressed("A") && aim.position.x <= 40) { aim.translateX(1) };
+  if ( keyboard.pressed("B") )   aim.translateZ(-1);    // Verificar se irá manter ou retirar
+  if ( keyboard.pressed("space") )   aim.translateZ(1); // Verificar se irá manter ou retirar
 }
 
 
@@ -120,11 +146,12 @@ function render()
   updateMapRow(scene, mapRow);
   
   updateAim();
-  //updatePosition();
+  updatePosition();
+  updateAnimation();
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
   //console.log(MouseEvent.clientX);
 
 
-  console.log(aimAssist)
+  console.log(y)
 }
