@@ -23,8 +23,8 @@ camera = createCamera(); // Init camera in this position
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-8, 5, -50);
-camPosMax = new THREE.Vector3(8, 40, 50);
+camPosMin = new THREE.Vector3(-8, 40, -100);
+camPosMax = new THREE.Vector3(8, 75, 100);
 // camLook deve ter mais liberdade que camPos para que a camera sempre rotacione corretamente
 /*let camLookMin = new THREE.Vector3(-8, 5, -25);
 let camLookMax = new THREE.Vector3(8, 25, 1000);*/
@@ -43,12 +43,13 @@ canvas.addEventListener("click", async () => {
 
 //Create plane
 aircraft = createPlane(scene);
-aircraft.position.set(0.0, 30.0, -5.0);
+aircraft.position.set(0.0, 55.0, -5.0);
 
 //Update Position
 function updatePosition() {
   aimAssist = aim.position;
-  lerpConfig.destination.set().copy(aim.position);
+  lerpConfig.destination.set(aim.position.x, aim.position.y- 0.2 * aircraft.position.y, aircraft.position.z);
+  
   
   if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
 }
@@ -70,33 +71,32 @@ document.body.style.cursor = 'none';
 //Mouse Movement
 
 //Mouse Movement Listener
-document.addEventListener("mousemove", updateAim, false);
+document.addEventListener("mousemove", updateAim);
 
 //Update Aim
 function updateAim(e)
 {
-  //console.log(e.movementX)
+  //console.log(e)
 
-  let aimPosMin = new THREE.Vector3(-40, 10.0, -100);
-  let aimPosMax = new THREE.Vector3(40, 55.0, 100);
+  let aimPosMin = new THREE.Vector3(-60, 40.0, -100);
+  let aimPosMax = new THREE.Vector3(60, 110.0, 100);
   aim.position.x -= e.movementX/100;
   aim.position.y -= e.movementY/50;
   aim.position.clamp(aimPosMin, aimPosMax);
   lerpConfig.move = true;
-  //console.log(aim.position);
-  //console.log(aimPosMin);
-  //console.log(aim.position.x);
-  //console.log(aim.position.y);
+  
 
-  //updateAnimation(e);
 }
 
 //Update Animation
 var y = 0, z = 0;
 function updateAnimation(e)
 {
-  keyboard.update();
-  if( y > -5 && y < 5 && z > -15 && z < 15) {
+  //keyboard.update();
+  aircraft.lookAt(aim.position);
+  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
+  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+  /*if( y > -5 && y < 5 && z > -15 && z < 15) {
     if( e.movementX > 0 ) { aircraft.rotateY(degreesToRadians(1.5)); z += 0.5;  };
     if( e.movementX < 0) { aircraft.rotateY(degreesToRadians(-2)); z -= 0.5 };
     if( e.movementY > 0 ) { aircraft.rotateZ(degreesToRadians(-0.3)); y += 0.1 };
@@ -111,7 +111,7 @@ function updateAnimation(e)
   if( e.movementY/2 < 1 ) {
     if(y > 0) { aircraft.rotateZ(degreesToRadians(-0.5)); y -= 0.1 }
     if(y < 0) { aircraft.rotateZ(degreesToRadians(0.5)); y += 0.1 }
-  }
+  }*/
 }
 
 // Listen window size changes
@@ -120,6 +120,8 @@ window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)},
 // Show axes (parameter is size of each axis)
 let axesHelper = new THREE.AxesHelper( 12 );
 scene.add( axesHelper );
+
+//Mouse data
 
 render();
 function render()
@@ -133,7 +135,7 @@ function render()
   updateMapRow(scene, mapRow);
   
   updatePosition();
-  //updateAnimation();
+  updateAnimation();
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
   //console.log(MouseEvent.clientX);

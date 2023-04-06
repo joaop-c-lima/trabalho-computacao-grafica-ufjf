@@ -8,11 +8,11 @@ export function createCamera(){
 
 export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camMin, camMax){
     
-    let destination = new THREE.Vector3(aimPos.x, aimPos.y, -35);
+    let destination = new THREE.Vector3(aimPos.x, aimPos.y, -60);
     destination.clamp(camMin, camMax);
     lerpCameraConfig = {
         destination: destination,
-        alpha: 0.2,
+        alpha: 0.02,
         move: true
     }
     aimPos.clamp(camMin, camMax);
