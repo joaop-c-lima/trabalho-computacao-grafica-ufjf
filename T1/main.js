@@ -120,7 +120,7 @@ function render()
   updateMapRow(scene, mapRow);
   
   updateAim();
-  updatePosition();
+  //updatePosition();
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
   //console.log(MouseEvent.clientX);
