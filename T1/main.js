@@ -48,7 +48,7 @@ function updateAim(e)
   aim.position.x += e.movementX/250;
   aim.position.y -= e.movementY/250;
   aim.position.clamp(aimPosMin, aimPosMax);
-  console.log(aim.position);
+  //console.log(aim.position);
   //console.log(aimPosMin);
   //console.log(aim.position.x);
   //console.log(aim.position.y);
