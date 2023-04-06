@@ -3,18 +3,18 @@ import * as THREE from  'three';
 export function createAim(){
     //Creating a grid of points
     var vertices = [];
-    vertices.push( new THREE.Vector3( 0, 2.5, 0 ) );
-    vertices.push( new THREE.Vector3( 0, -2.5, 0 ) );
+    vertices.push( new THREE.Vector3( 0, 7.5, 0 ) );
+    vertices.push( new THREE.Vector3( 0, -7.5, 0 ) );
     vertices.push( new THREE.Vector3( 0, 0, 0 ) );
-    vertices.push( new THREE.Vector3( 2.5, 0, 0 ) );
-    vertices.push( new THREE.Vector3( -2.5, 0, 0 ) );
+    vertices.push( new THREE.Vector3( 7.5, 0, 0 ) );
+    vertices.push( new THREE.Vector3( -7.5, 0, 0 ) );
 
     var vertices2 = [];
-    vertices2.push( new THREE.Vector3( 0, 2.5, 0 ) );
-    vertices2.push( new THREE.Vector3( 2.5, 0, 0 ) );
-    vertices2.push( new THREE.Vector3( 0, -2.5, 0 ) );
-    vertices2.push( new THREE.Vector3( -2.5, 0, 0 ) );
-    vertices2.push( new THREE.Vector3( 0, 2.5, 0 ) );
+    vertices2.push( new THREE.Vector3( 0, 7.5, 0 ) );
+    vertices2.push( new THREE.Vector3( 7.5, 0, 0 ) );
+    vertices2.push( new THREE.Vector3( 0, -7.5, 0 ) );
+    vertices2.push( new THREE.Vector3( -7.5, 0, 0 ) );
+    vertices2.push( new THREE.Vector3( 0, 7.5, 0 ) );
     
     //Transforming in a Geometry
     var geometry = new THREE.BufferGeometry().setFromPoints(vertices);
