@@ -34,17 +34,34 @@ light = initDefaultBasicLight(scene); // Create a basic light to illuminate the 
 let mapRow = makeMapRow();
 mapRow.forEach(element => scene.add(element));
 
+const canvas = document.querySelector("canvas");
+canvas.addEventListener("click", async () => {
+  await canvas.requestPointerLock();
+});
+
 //Create plane
 aircraft = createPlane(scene);
 aircraft.position.set(0.0, 30.0, -5.0);
+
+//
+function updatePosition() {
+  aircraft.position.set(aimAssist.x, aimAssist.y, 5)
+  console.log(aircraft.position)
+}
+
+
 //Create aim
 let aim = createAim();
 scene.add(aim);
+var aimAssist = new THREE.Vector3().copy(aim.position);
 
 //Mouse invisibility
-document.body.style.cursor = 'none';
+//document.body.style.cursor = 'none';
 
 //Mouse Movement
+const centerX = canvas.innerWidth / 2;
+const centerY = canvas.innerHeight / 2;
+
 var mouseX = 0;
 var mouseY = 0;
 
@@ -59,8 +76,11 @@ document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 //Update Aim
 function updateAim()
 {
-  aim.position.x = mouseX;
-  aim.position.y = mouseY;
+  if(mouseX > centerX) { aim.translateX(0.5) }
+  if(centerX > mouseX) { aim.translateX(-0.5) }
+
+  aimAssist = aim.position;
+
 }
 
 // Listen window size changes
@@ -84,10 +104,9 @@ function aimControl(){
   if (keyboard.pressed("space") )   aim.translateZ(1);
 }
 
-const canvas = document.querySelector("canvas");
-canvas.addEventListener("click", async () => {
-  await canvas.requestPointerLock();
-});
+
+
+
 render();
 function render()
 {
@@ -100,7 +119,12 @@ function render()
   //updateAim(event.clientX, Event.clientY, aim);
   updateMapRow(scene, mapRow);
   
+  updateAim();
+  updatePosition();
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
   //console.log(MouseEvent.clientX);
+
+
+  console.log(aimAssist)
 }
