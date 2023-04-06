@@ -47,15 +47,15 @@ aircraft.position.set(0.0, 30.0, -5.0);
 
 //Update Position
 function updatePosition() {
-  aircraft.position.set(aimAssist.x, aimAssist.y, 5)
   aimAssist = aim.position;
-  lerpConfig.destination = aimAssist;
-
+  lerpConfig.destination.set().copy(aim.position);
+  
+  if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
 }
 
 const lerpConfig = {
   destination: new THREE.Vector3(),
-  alpha: 0.01,
+  alpha: 0.08,
   move: true
 }
 
@@ -137,7 +137,4 @@ function render()
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
   //console.log(MouseEvent.clientX);
-
-  if(lerpConfig) { aircraft.translate.lerp(lerpConfig.destination, lerpConfig.alpha) }
-
 }
