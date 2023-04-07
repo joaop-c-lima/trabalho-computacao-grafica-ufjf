@@ -13,7 +13,7 @@ import { createPlane } from './createPlane.js';
 import { makeMapRow, updateMapRow } from './map.js';
 import KeyboardState from '../libs/util/KeyboardState.js' 
 
-let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard, aircraft;; // Initial variables
+let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard, aircraft, camDestination;; // Initial variables
 keyboard = new KeyboardState();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
@@ -48,7 +48,7 @@ aircraft.position.set(0.0, 55.0, -5.0);
 //Update Position
 function updatePosition() {
   aimAssist = aim.position;
-  lerpConfig.destination.set(aim.position.x, aim.position.y- 0.2 * aircraft.position.y, aircraft.position.z);
+  lerpConfig.destination.set(aim.position.x, aim.position.y, aircraft.position.z);
   
   
   if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
@@ -130,7 +130,7 @@ function render()
   renderer.render(scene, camera) // Render scene
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
   //console.log(aimPos);
-  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax);
+  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   //updateAim(event.clientX, Event.clientY, aim);
   updateMapRow(scene, mapRow);
   
