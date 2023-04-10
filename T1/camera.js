@@ -10,7 +10,6 @@ export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, cam
     aimPos.clamp(camMin, camMax);
     camera.lookAt(aimPos.x, aimPos.y, aimPos.z);
     destination = new THREE.Vector3(aimPos.x, aimPos.y, -60);
-    destination.clamp(camMin, camMax);
     lerpCameraConfig = {
         destination: destination,
         alpha: 0.02,
