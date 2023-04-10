@@ -13,13 +13,13 @@ const LEAF_MAX_RADIUS = 50;
 const LEAF_MIN_HEIGHT = 10;
 const LEAF_MAX_HEIGHT = 20;
 
-
+// Create and return a random tree
 export function makeRandomTree() {
     let trunk = makeRandomTrunk();
     return trunk;
 }
 
-
+// Create and return a random trunk
 export function makeRandomTrunk() {
     let trunkMaterial = new THREE.MeshBasicMaterial({ color: TRUNK_COLOR});
     trunkMaterial.transparent = true;
@@ -32,6 +32,7 @@ export function makeRandomTrunk() {
     return trunk
 }
 
+// Add leaves to a trunk
 export function addLeaves(trunk) {
     let leaf;
     let lastLeaf = makeLeaf();
@@ -45,6 +46,7 @@ export function addLeaves(trunk) {
     }
 }
 
+// Create and return a random sheet. Radius and height of leaf (cone) can be limited
 export function makeLeaf(maxRadius = -1, maxHeight = -1) {
     let leafMaterial = new THREE.MeshBasicMaterial({ color: LEAF_COLOR});
     leafMaterial.transparent = true;

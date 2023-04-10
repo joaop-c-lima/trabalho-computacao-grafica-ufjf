@@ -9,27 +9,30 @@ const MAP_Z = 10.0;
 const NUM_MAX_MAP = 100;
 const MAX_NON_VISIBLE_MAPS = 5;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
-const VELOCIDADE = 1.0;
+const SPEED = 1.0;
 const MIN_NUM_TREES = 2;
 const MAX_NUM_TREES = 3;
 const FADE_START = 200;
 const FADE_END = NUM_MAX_MAP * MAP_Z;
 
-export function makeMapRow() {
-  let mapRow = [];
-  mapRow.push(makeMap());
+// Creates the queue of map parts
+export function makeMapQueue() {
+  let mapQueue = [];
+  mapQueue.push(makeMap());
   for (let i = 1; i < NUM_MAX_MAP; i++) {
-    addMapInRow(mapRow);
+    addMapInQueue(mapQueue);
   }
-  return mapRow;
+  return mapQueue;
 }
 
-export function addMapInRow(mapRow) {
-  mapRow.push(makeMap());
-  mapRow[mapRow.length - 1].material.opacity = opacityLinearFunction(mapRow[mapRow.length - 2].position.z + MAP_Z);
-  mapRow[mapRow.length - 1].position.set(0, 0, mapRow[mapRow.length - 2].position.z + MAP_Z);
+// Creates and places a map part at the end of the queue
+export function addMapInQueue(mapQueue) {
+  mapQueue.push(makeMap());
+  mapQueue[mapQueue.length - 1].material.opacity = opacityLinearFunction(mapQueue[mapQueue.length - 2].position.z + MAP_Z);
+  mapQueue[mapQueue.length - 1].position.set(0, 0, mapQueue[mapQueue.length - 2].position.z + MAP_Z);
 }
 
+// Creates the map along with randomly placed trees
 export function makeMap() {
   let mapMaterial = new THREE.MeshBasicMaterial({ color: MAP_COLOR});
   mapMaterial.transparent = true;
@@ -48,13 +51,15 @@ export function makeMap() {
   return map;
 }
 
-export function removeMap(scene, mapRow) {
-  mapRow[0].geometry.dispose();
-  mapRow[0].material.dispose();
-  scene.remove(mapRow[0]);
-  mapRow.shift();
+// Remove map from queue and scene
+export function removeMap(scene, mapQueue) {
+  mapQueue[0].geometry.dispose();
+  mapQueue[0].material.dispose();
+  scene.remove(mapQueue[0]);
+  mapQueue.shift();
 }
 
+// Function that sets the opacity of an object given the Z of its position
 export function opacityLinearFunction(elementZ) {
   if (elementZ < FADE_START) {
     return 1.0;
@@ -63,6 +68,7 @@ export function opacityLinearFunction(elementZ) {
   }
 }
 
+// Sets the opacity of a mesh and its children
 export function changeOpacity(element, opacity) {
   element.children.forEach((child) => {
     changeOpacity(child, opacity);
@@ -70,16 +76,17 @@ export function changeOpacity(element, opacity) {
   element.material.opacity = opacity;
 }
 
-export function updateMapRow(scene, mapRow) {
-  mapRow.forEach(element => {
-    element.position.z -= VELOCIDADE;
+// Updates the queue of maps by removing the first one from the queue and creating a new map at the end
+export function updateMapQueue(scene, mapQueue) {
+  mapQueue.forEach(element => {
+    element.position.z -= SPEED;
     if (element.position.z >= FADE_START) {
       changeOpacity(element, opacityLinearFunction(element.position.z));
     }
   });
-  if (mapRow[0].position.z <= Z_DESTINATION) {
-    removeMap(scene, mapRow)
-    addMapInRow(mapRow);
-    scene.add(mapRow[mapRow.length - 1]);
+  if (mapQueue[0].position.z <= Z_DESTINATION) {
+    removeMap(scene, mapQueue)
+    addMapInQueue(mapQueue);
+    scene.add(mapQueue[mapQueue.length - 1]);
   }
 }

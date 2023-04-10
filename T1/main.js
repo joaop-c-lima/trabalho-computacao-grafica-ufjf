@@ -5,7 +5,7 @@ import {initRenderer,
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
-import { makeMapRow, updateMapRow } from './map.js';
+import { makeMapQueue, updateMapQueue } from './map.js';
 import { makeSun } from './sun.js';
 
 let scene, renderer, camera, light, aimPos, lerpCameraConfig, camPosMin, camPosMax, aircraft, camDestination, dist, quaternion;; // Initial variables
@@ -83,8 +83,8 @@ function updateAnimation(dist, quaternion)
 // Listen window size changes
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-let mapRow = makeMapRow();
-mapRow.forEach(element => scene.add(element));
+let mapQueue = makeMapQueue();
+mapQueue.forEach(element => scene.add(element));
 
 let sun = makeSun();
 scene.add(sun)
@@ -99,11 +99,11 @@ render();
 
 function render() {
   requestAnimationFrame(render);
-  updateMapRow(scene, mapRow);
+  updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
-  updateMapRow(scene, mapRow);
+  updateMapQueue(scene, mapQueue);
   updatePosition();
   updateAnimation(dist, quaternion);
 }

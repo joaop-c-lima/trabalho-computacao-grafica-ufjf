@@ -7,7 +7,7 @@ const SUN_LIGHT_COLOR = "rgb(255,255,255)";
 const SUN_POSITION = new THREE.Vector3(0, 200, 1000);
 const BACKLIGHT_STRENGHT = 0.3;
 
-
+// Create and return a sun with a spotlight
 export function makeSun() {
     let sunGeometry = new THREE.SphereGeometry(10, 16, 32);
     let sunMaterial = new THREE.MeshBasicMaterial({ color: SUN_COLOR });
