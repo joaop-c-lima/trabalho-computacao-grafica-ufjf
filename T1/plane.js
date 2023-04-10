@@ -19,8 +19,8 @@ material = setDefaultMaterial('gray');
 materialDarkYellow = setDefaultMaterial('rgb(255,200,0)');
 materialMotor = setDefaultMaterial('rgb(200,200,200)');
 materialCabin =  setDefaultMaterial('rgb(180,200,200)');// create a basic material
-materialFan = new THREE.MeshLambertMaterial({color: "gray", transparent: true, opacity: 0.5});
-materialFanRing = new THREE.MeshLambertMaterial({color: "rgb(255,255,0)", transparent: true, opacity: 0.5});
+materialFan = new THREE.MeshBasicMaterial({color: "gray", transparent: true, opacity: 0.5});
+materialFanRing = new THREE.MeshBasicMaterial({color: "rgb(255,255,0)", transparent: true, opacity: 0.5});
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
 
