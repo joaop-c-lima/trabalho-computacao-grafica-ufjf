@@ -31,7 +31,7 @@ export function addMapInRow(mapRow) {
 }
 
 export function makeMap() {
-  let mapMaterial = new THREE.MeshPhongMaterial({ color: MAP_COLOR, shininess: 0 });
+  let mapMaterial = new THREE.MeshBasicMaterial({ color: MAP_COLOR, shininess: 0 });
   mapMaterial.transparent = true;
   let mapGeometry = new THREE.BoxGeometry(MAP_X, MAP_Y, MAP_Z);
   let map = new THREE.Mesh(mapGeometry, mapMaterial);

@@ -21,7 +21,7 @@ export function makeRandomTree() {
 
 
 export function makeRandomTrunk() {
-    let trunkMaterial = new THREE.MeshPhongMaterial({ color: TRUNK_COLOR});
+    let trunkMaterial = new THREE.MeshBasicMaterial({ color: TRUNK_COLOR});
     trunkMaterial.transparent = true;
     let trunkradius = getRndInteger(TRUNK_MIN_RADIUS, TRUNK_MAX_RADIUS) / 10;
     let trunkHeight = getRndInteger(TRUNK_MIN_HEIGHT, TRUNK_MAX_HEIGHT);
@@ -46,7 +46,7 @@ export function addLeaves(trunk) {
 }
 
 export function makeLeaf(maxRadius = -1, maxHeight = -1) {
-    let leafMaterial = new THREE.MeshPhongMaterial({ color: LEAF_COLOR, shininess: "200" });
+    let leafMaterial = new THREE.MeshBasicMaterial({ color: LEAF_COLOR, shininess: "200" });
     leafMaterial.transparent = true;
     let leafRadius = getRndInteger(LEAF_MIN_RADIUS, maxRadius != -1 ? maxRadius : LEAF_MAX_RADIUS) / 10;
     let leafHeight = getRndInteger(LEAF_MIN_HEIGHT, maxHeight != -1 ? maxHeight : LEAF_MAX_HEIGHT);
