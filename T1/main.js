@@ -69,7 +69,6 @@ function updateAim(mouse)
 }
 
 //Update Animation
-quaternion = new THREE.Quaternion();
 function updateAnimation(dist, quaternion)
 {
   aircraft.lookAt(aim.position);
