@@ -11,7 +11,7 @@ const MAP_X = 500.0;
 const MAP_Y = 0.01;
 const MAP_Z = 10.0;
 const NUM_MAX_MAP = 100;
-const MAX_NON_VISIBLE_MAPS = 1;
+const MAX_NON_VISIBLE_MAPS = 5;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
 const VELOCIDADE = 0.5;
 const MIN_NUM_TREES = 2;
@@ -63,7 +63,7 @@ export function opacityLinearFunction(elementZ) {
   if (elementZ < FADE_START) {
     return 1.0;
   } else {
-    return 1.0 - ((elementZ - FADE_START) / FADE_END);
+    return (elementZ* (-1/(FADE_END - FADE_START))) + (1 + (FADE_START/(FADE_END - FADE_START)));
   }
 }
 

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 const SUN_RADIUS = 10
 const SUN_COLOR = "rgb(255,255,50)";
 const SUN_LIGHT_COLOR = "rgb(255,255,255)";
-const SUN_POSITION = new THREE.Vector3(0, 200, 600);
+const SUN_POSITION = new THREE.Vector3(0, 200, 1000);
 const BACKLIGHT_STRENGHT = 0.3;
 
 
@@ -33,7 +33,7 @@ export function makeSun() {
     backLight.shadow.camera.near = 0.1;       
     backLight.shadow.camera.far = 10000;  
     backLight.distance = 0;
-    sun.add(backLight);
+    //sun.add(backLight);
     backLight.position.z = sun.position.z*(-1)
 
     return sun;
