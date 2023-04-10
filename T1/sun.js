@@ -28,7 +28,7 @@ export function makeSun() {
     let backLight = new THREE.SpotLight(SUN_LIGHT_COLOR);
     backLight.distance = 1000;
     backLight.intensity = sunLight.intensity*BACKLIGHT_STRENGHT;
-    backLight.castShadow = true;
+    //backLight.castShadow = true;
     backLight.target.position.set(0,0,0);
     backLight.shadow.camera.near = 0.1;       
     backLight.shadow.camera.far = 10000;  
