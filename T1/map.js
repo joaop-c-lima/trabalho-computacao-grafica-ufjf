@@ -9,13 +9,13 @@ import { getRndInteger } from './utils.js';
 const MAP_COLOR = "#228b22";
 const MAP_X = 500.0;
 const MAP_Y = 0.01;
-const MAP_Z = 5.0;
+const MAP_Z = 10.0;
 const NUM_MAX_MAP = 100;
 const MAX_NON_VISIBLE_MAPS = 1;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
 const VELOCIDADE = 0.5;
-const MIN_NUM_TREES = 1;
-const MAX_NUM_TREES = 5;
+const MIN_NUM_TREES = 2;
+const MAX_NUM_TREES = 3;
 const FADE_START = 200;
 const FADE_END = NUM_MAX_MAP * MAP_Z;
 
