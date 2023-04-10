@@ -17,8 +17,7 @@ import KeyboardState from '../libs/util/KeyboardState.js'
 let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard, aircraft, camDestination;; // Initial variables
 keyboard = new KeyboardState();
 scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer();    // Init a basic renderer
-
+renderer = initRenderer();    // Init a basic renderer  
 //Parametros da camera
 camera = createCamera(); // Init camera in this position
 let cameraHolder = new THREE.Object3D();

@@ -17,24 +17,14 @@ export function makeSun() {
 
     let sunLight = new THREE.SpotLight(SUN_LIGHT_COLOR);
     sunLight.distance = 1000;
-    sunLight.intensity = 2.5
+    sunLight.intensity = 1
     sunLight.castShadow = true;
     sunLight.target.position.set(0,0,0);
     sunLight.shadow.camera.near = 0.1;       
     sunLight.shadow.camera.far = 10000;  
+    sunLight.shadow.mapSize = new THREE.Vector2(3000,3000);
     sunLight.distance = 0;
     sun.add(sunLight)
-
-    let backLight = new THREE.SpotLight(SUN_LIGHT_COLOR);
-    backLight.distance = 1000;
-    backLight.intensity = sunLight.intensity*BACKLIGHT_STRENGHT;
-    //backLight.castShadow = true;
-    backLight.target.position.set(0,0,0);
-    backLight.shadow.camera.near = 0.1;       
-    backLight.shadow.camera.far = 10000;  
-    backLight.distance = 0;
-    //sun.add(backLight);
-    backLight.position.z = sun.position.z*(-1)
 
     return sun;
 }

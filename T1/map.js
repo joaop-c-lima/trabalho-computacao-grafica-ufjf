@@ -13,7 +13,7 @@ const MAP_Z = 10.0;
 const NUM_MAX_MAP = 100;
 const MAX_NON_VISIBLE_MAPS = 5;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
-const VELOCIDADE = 0.5;
+const VELOCIDADE = 1.0;
 const MIN_NUM_TREES = 2;
 const MAX_NUM_TREES = 3;
 const FADE_START = 200;
@@ -36,7 +36,7 @@ export function addMapInRow(mapRow) {
 
 export function makeMap() {
   let mapMaterial = new THREE.MeshPhongMaterial({ color: MAP_COLOR, shininess: 0 });
-  //mapMaterial.transparent = true;
+  mapMaterial.transparent = true;
   let mapGeometry = new THREE.BoxGeometry(MAP_X, MAP_Y, MAP_Z);
   let map = new THREE.Mesh(mapGeometry, mapMaterial);
   map.position.set(0.0, 0.0, 0.0);
