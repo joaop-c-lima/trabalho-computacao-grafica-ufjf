@@ -88,6 +88,14 @@ function updateAim(e)
 
 }
 
+function calcDist()
+{
+
+  var dist = aim.position.x - aircraft.position.x;
+  console.log(dist);
+  return dist;
+}
+
 //Update Animation
 var y = 0, z = 0;
 function updateAnimation(e)
@@ -99,22 +107,28 @@ function updateAnimation(e)
   //aircraft.quaternion.rotateTowards(alvo, 0.05);
   console.log(aim.quaternion.x);*/
 
+  var dist = aircraft.position.x - aim.position.x;
+
+  var quaternion = new THREE.Quaternion();
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 10 ) ) / 4);
+
+  aircraft.applyQuaternion(quaternion);
+
   //keyboard.update();
   
-  if( y > -5 && y < 5 && z > -15 && z < 15) {
-    if( e.movementX > 0  ) { aircraft.rotateY(degreesToRadians(10)); z +=  0.5  };
-    if( e.movementX < 0 ) { aircraft.rotateY(degreesToRadians(-10)); z -= 0.5 };
-    if( e.movementY > 0 ) { aircraft.rotateZ(degreesToRadians(10)); y += 0.1 };
-    if( e.movementY < 0 ) { aircraft.rotateZ(degreesToRadians(10)); y -= 0.1 };
-    if (z == 15) {z = 14.5};
-    if (z == -15) {z = -14.5};
-    if (y == 5) {y = 4.5};
-    if (y == 5) {y = 4.5};
-  }
-  //aircraft.lookAt(aim.position);
-  //aircraft.rotateY(THREE.MathUtils.degToRad(-90));
-  //aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
-  console.log("z", z);
+  // if( y > -5 && y < 5 && z > -15 && z < 15) {
+  //   if( e.movementX > 0  ) { aircraft.rotateY(degreesToRadians(10)); z +=  0.5  };
+  //   if( e.movementX < 0 ) { aircraft.rotateY(degreesToRadians(-10)); z -= 0.5 };
+  //   if( e.movementY > 0 ) { aircraft.rotateZ(degreesToRadians(10)); y += 0.1 };
+  //   if( e.movementY < 0 ) { aircraft.rotateZ(degreesToRadians(10)); y -= 0.1 };
+  //   if (z == 15) {z = 14.5};
+  //   if (z == -15) {z = -14.5};
+  //   if (y == 5) {y = 4.5};
+  //   if (y == 5) {y = 4.5};
+  // }
+
+
+  
   //console.log("y", y);
   //console.log(e.movementX)
 /*
@@ -138,6 +152,7 @@ scene.add( axesHelper );
 
 //Mouse data
 
+
 render();
 function render()
 {
@@ -147,8 +162,14 @@ function render()
   //console.log(aimPos);
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   updateMapRow(scene, mapRow);
-  
+  calcDist()
   updatePosition();
+
+  aircraft.lookAt(aim.position);
+  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
+  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+
+
   //updateAnimation();
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
