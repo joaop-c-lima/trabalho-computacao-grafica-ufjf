@@ -7,13 +7,6 @@ export function createCamera(){
 
 
 export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camMin, camMax, destination){
-    
-    /*if (aimPos.y <= 75){
-    destination = new THREE.Vector3(aimPos.x, aimPos.y+ aimPos.y * 0.2 + 5, -60);
-    }
-    if (aimPos.y>75){
-        destination = new THREE.Vector3(aimPos.x, aimPos.y- aimPos.y * 0.05, -60);
-    }*/
     destination = new THREE.Vector3(aimPos.x, aimPos.y, -60);
     destination.clamp(camMin, camMax);
     lerpCameraConfig = {

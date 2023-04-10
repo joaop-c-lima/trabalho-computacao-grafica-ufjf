@@ -1,19 +1,14 @@
 import * as THREE from  'three';
 import {initRenderer, 
-        initCamera,
         initDefaultBasicLight,
-        setDefaultMaterial,
-        InfoBox,
-        onWindowResize,
-        createGroundPlaneXZ,
-        degreesToRadians} from "../libs/util/util.js";
+        onWindowResize} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
 import { makeMapRow, updateMapRow } from './map.js';
 import { makeSun } from './sun.js';
 
-let scene, renderer, camera, light, aimPos, lerpCameraConfig, camPosMin, camPosMax, aircraft, camDestination;; // Initial variables
+let scene, renderer, camera, light, aimPos, lerpCameraConfig, camPosMin, camPosMax, aircraft, camDestination, dist, quaternion;; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 
@@ -43,7 +38,6 @@ aircraft.position.set(0.0, 55.0, -5.0);
 
 //Update Position
 function updatePosition() {
-  aimAssist = aim.position;
   lerpConfig.destination.set(aim.position.x, aim.position.y, aircraft.position.z);
   
   
@@ -60,7 +54,6 @@ const lerpConfig = {
 //Create aim
 let aim = createAim();
 scene.add(aim);
-var aimAssist = new THREE.Vector3().copy(aim.position);
 
 //Mouse Movement Listener
 document.addEventListener("mousemove", updateAim);
@@ -76,10 +69,14 @@ function updateAim(mouse)
 }
 
 //Update Animation
-function updateAnimation()
+quaternion = new THREE.Quaternion();
+function updateAnimation(dist, quaternion)
 {
-  var dist = aircraft.position.x - aim.position.x;
-  var quaternion = new THREE.Quaternion();
+  aircraft.lookAt(aim.position);
+  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
+  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+  dist = aircraft.position.x - aim.position.x;
+  quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 40 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
 }
@@ -109,8 +106,5 @@ function render() {
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   updateMapRow(scene, mapRow);
   updatePosition();
-  aircraft.lookAt(aim.position);
-  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
-  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
-  updateAnimation();
+  updateAnimation(dist, quaternion);
 }
