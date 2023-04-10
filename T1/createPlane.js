@@ -7,8 +7,8 @@ export function createPlane(scene){
     materialDarkYellow = setDefaultMaterial('rgb(255,200,0)');
     materialMotor = setDefaultMaterial('rgb(200,200,200)');
     materialCabin =  setDefaultMaterial('rgb(180,200,200)');
-    materialFan = new THREE.MeshLambertMaterial({color: "gray", transparent: true, opacity: 0.5});
-    materialFanRing = new THREE.MeshLambertMaterial({color: "rgb(255,255,0)", transparent: true, opacity: 0.5});
+    materialFan = new THREE.MeshBasicMaterial({color: "gray", transparent: true, opacity: 0.5});
+    materialFanRing = new THREE.MeshBasicMaterial({color: "rgb(255,255,0)", transparent: true, opacity: 0.5});
 
     let bodyGeometry = new THREE.CylinderGeometry(2.5, 1.5, 15, 32);
     let body = new THREE.Mesh(bodyGeometry, material);
