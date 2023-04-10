@@ -1,8 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
-import {
-  setDefaultMaterial,
-} from "../libs/util/util.js";
 import { makeRandomTree } from './tree.js';
 import { getRndInteger } from './utils.js';
 
