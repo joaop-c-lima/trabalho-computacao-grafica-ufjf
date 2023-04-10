@@ -73,18 +73,18 @@ document.body.style.cursor = 'none';
 //Mouse Movement Listener
 document.addEventListener("mousemove", updateAim);
 
+
 //Update Aim
 function updateAim(e)
 {
-  //console.log(e)
 
   let aimPosMin = new THREE.Vector3(-60, 40.0, -100);
   let aimPosMax = new THREE.Vector3(60, 110.0, 100);
   aim.position.x -= e.movementX/100;
   aim.position.y -= e.movementY/50;
   aim.position.clamp(aimPosMin, aimPosMax);
-  lerpConfig.move = true;
-  
+  //lerpConfig.move = true;
+  updateAnimation(e);
 
 }
 
@@ -92,17 +92,32 @@ function updateAim(e)
 var y = 0, z = 0;
 function updateAnimation(e)
 {
-  //keyboard.update();
-  aircraft.lookAt(aim.position);
-  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
-  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
-  /*if( y > -5 && y < 5 && z > -15 && z < 15) {
-    if( e.movementX > 0 ) { aircraft.rotateY(degreesToRadians(1.5)); z += 0.5;  };
-    if( e.movementX < 0) { aircraft.rotateY(degreesToRadians(-2)); z -= 0.5 };
-    if( e.movementY > 0 ) { aircraft.rotateZ(degreesToRadians(-0.3)); y += 0.1 };
-    if( e.movementY < 0 ) { aircraft.rotateZ(degreesToRadians(0.3)); y -= 0.1 };
-  }
+  /*let rotationMatrix = new THREE.Matrix4();
+  rotationMatrix.lookAt(aim.position, aircraft.position, aircraft.up);
+  let alvo = aim.position;
+  alvo.applyQuaternion(5,30,-60);
+  //aircraft.quaternion.rotateTowards(alvo, 0.05);
+  console.log(aim.quaternion.x);*/
 
+  //keyboard.update();
+  
+  if( y > -5 && y < 5 && z > -15 && z < 15) {
+    if( e.movementX > 0  ) { aircraft.rotateY(degreesToRadians(10)); z +=  0.5  };
+    if( e.movementX < 0 ) { aircraft.rotateY(degreesToRadians(-10)); z -= 0.5 };
+    if( e.movementY > 0 ) { aircraft.rotateZ(degreesToRadians(10)); y += 0.1 };
+    if( e.movementY < 0 ) { aircraft.rotateZ(degreesToRadians(10)); y -= 0.1 };
+    if (z == 15) {z = 14.5};
+    if (z == -15) {z = -14.5};
+    if (y == 5) {y = 4.5};
+    if (y == 5) {y = 4.5};
+  }
+  //aircraft.lookAt(aim.position);
+  //aircraft.rotateY(THREE.MathUtils.degToRad(-90));
+  //aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+  console.log("z", z);
+  //console.log("y", y);
+  //console.log(e.movementX)
+/*
   if( e.movementX/2 < 1 ) {
     if(z > 0) { aircraft.rotateY(degreesToRadians(-10)); z -= 0.5 }
     if(z < 0) { aircraft.rotateY(degreesToRadians(10)); z += 0.5 }
@@ -131,11 +146,10 @@ function render()
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
   //console.log(aimPos);
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
-  //updateAim(event.clientX, Event.clientY, aim);
   updateMapRow(scene, mapRow);
   
   updatePosition();
-  updateAnimation();
+  //updateAnimation();
   //aim.translateX(MouseEvent.clientX);
   //aim.translateY(MouseEvent.clientY);
   //console.log(MouseEvent.clientX);
