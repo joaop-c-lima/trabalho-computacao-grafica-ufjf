@@ -84,21 +84,15 @@ function updateAim(e)
   aim.position.y -= e.movementY/50;
   aim.position.clamp(aimPosMin, aimPosMax);
   //lerpConfig.move = true;
-  updateAnimation(e);
+  //updateAnimation();
 
 }
 
-function calcDist()
-{
 
-  var dist = aim.position.x - aircraft.position.x;
-  console.log(dist);
-  return dist;
-}
 
 //Update Animation
 var y = 0, z = 0;
-function updateAnimation(e)
+function updateAnimation()
 {
   /*let rotationMatrix = new THREE.Matrix4();
   rotationMatrix.lookAt(aim.position, aircraft.position, aircraft.up);
@@ -108,9 +102,9 @@ function updateAnimation(e)
   console.log(aim.quaternion.x);*/
 
   var dist = aircraft.position.x - aim.position.x;
-
+  console.log(dist);
   var quaternion = new THREE.Quaternion();
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 10 ) ) / 4);
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 40 ) ) / 4);
 
   aircraft.applyQuaternion(quaternion);
 
@@ -162,12 +156,12 @@ function render()
   //console.log(aimPos);
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   updateMapRow(scene, mapRow);
-  calcDist()
   updatePosition();
-
+  //updateAnimation();
   aircraft.lookAt(aim.position);
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+  updateAnimation();
 
 
   //updateAnimation();
