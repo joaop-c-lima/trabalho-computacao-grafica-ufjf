@@ -22,7 +22,7 @@ export function makeRandomTree() {
 
 export function makeRandomTrunk() {
     let trunkMaterial = new THREE.MeshPhongMaterial({ color: TRUNK_COLOR});
-    //trunkMaterial.transparent = true;
+    trunkMaterial.transparent = true;
     let trunkradius = getRndInteger(TRUNK_MIN_RADIUS, TRUNK_MAX_RADIUS) / 10;
     let trunkHeight = getRndInteger(TRUNK_MIN_HEIGHT, TRUNK_MAX_HEIGHT);
     let trunkGeometry = new THREE.CylinderGeometry(trunkradius, trunkradius, trunkHeight, 32);

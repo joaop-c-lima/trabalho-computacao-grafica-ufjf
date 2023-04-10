@@ -35,7 +35,7 @@ export function addMapInRow(mapRow) {
 }
 
 export function makeMap() {
-  let mapMaterial = new THREE.MeshPhongMaterial({ color: MAP_COLOR, shininess : 0});
+  let mapMaterial = new THREE.MeshPhongMaterial({ color: MAP_COLOR, shininess: 0 });
   //mapMaterial.transparent = true;
   let mapGeometry = new THREE.BoxGeometry(MAP_X, MAP_Y, MAP_Z);
   let map = new THREE.Mesh(mapGeometry, mapMaterial);
@@ -63,7 +63,7 @@ export function opacityLinearFunction(elementZ) {
   if (elementZ < FADE_START) {
     return 1.0;
   } else {
-    return (elementZ* (-1/(FADE_END - FADE_START))) + (1 + (FADE_START/(FADE_END - FADE_START)));
+    return (elementZ * (-1 / (FADE_END - FADE_START))) + (1 + (FADE_START / (FADE_END - FADE_START)));
   }
 }
 
@@ -71,9 +71,7 @@ export function changeOpacity(element, opacity) {
   element.children.forEach((child) => {
     changeOpacity(child, opacity);
   });
-  if (element.material) {
-    element.material.opacity = opacity;
-  };
+  element.material.opacity = opacity;
 }
 
 export function updateMapRow(scene, mapRow) {
