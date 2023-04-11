@@ -29,7 +29,7 @@ document.body.style.cursor = 'none';
 //Pointer Lock
 const canvas = document.querySelector("canvas");
 canvas.addEventListener("click", async () => {
-  canvas.requestPointerLock({unadjustedMovement: true});
+  canvas.requestPointerLock();
 });
 
 //Create plane
