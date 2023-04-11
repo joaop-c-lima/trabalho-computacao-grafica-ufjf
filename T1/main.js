@@ -1,96 +1,109 @@
 import * as THREE from  'three';
 import {initRenderer, 
-        initCamera,
         initDefaultBasicLight,
-        setDefaultMaterial,
-        InfoBox,
-        onWindowResize,
-        createGroundPlaneXZ} from "../libs/util/util.js";
+        onWindowResize} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
-import { makeMapRow, updateMapRow } from './map.js';
-import KeyboardState from '../libs/util/KeyboardState.js' 
-let scene, renderer, camera, material, light, orbit, aimPos, lerpCameraConfig, camPosMin, camPosMax, keyboard;; // Initial variables
-keyboard = new KeyboardState();
+import { createPlane } from './createPlane.js';
+import { makeMapQueue, updateMapQueue } from './map.js';
+import { makeSun } from './sun.js';
+
+let scene, renderer, camera, light, aimPos, lerpCameraConfig, camPosMin, camPosMax, aircraft, camDestination, dist, quaternion;; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 
-//Parametros da camera
-camera = createCamera(); // Init camera in this position
+//Camera parameters
+camera = createCamera();
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-8, 5, -25);
-camPosMax = new THREE.Vector3(8, 25, -25);
-// camLook deve ter mais liberdade que camPos para que a camera sempre rotacione corretamente
-let camLookMin = new THREE.Vector3(-10, 3, -1000);
-let camLookMax = new THREE.Vector3(10, 35, 1000);
+camPosMin = new THREE.Vector3(-8, 40, -100);
+camPosMax = new THREE.Vector3(8, 75, 100);
 
-
-material = setDefaultMaterial(); // create a basic material
-light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
-//orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
-let mapRow = makeMapRow();
-mapRow.forEach(element => scene.add(element));
-//Create aim
-let aim = createAim();
-scene.add(aim);
+// Create a basic light to illuminate the scene
+light = initDefaultBasicLight(scene); 
 
 //Mouse invisibility
 document.body.style.cursor = 'none';
 
-//Mouse Movement
-var mouseX = 0;
-var mouseY = 0;
+//Pointer Lock
+const canvas = document.querySelector("canvas");
+canvas.addEventListener("click", async () => {
+  canvas.requestPointerLock({unadjustedMovement: true});
+});
 
-function onDocumentMouseMove( event ) {
-	mouseX = ( event.clientX - window.innerWidth / 2 ) / window.innerWidth * 2;
-	mouseY = ( window.innerHeight / 2 - event.clientY ) / window.innerHeight * 2;
+//Create plane
+aircraft = createPlane(scene);
+aircraft.position.set(0.0, 55.0, -5.0);
+
+//Update Position
+function updatePosition() {
+  lerpConfig.destination.set(aim.position.x, aim.position.y, aircraft.position.z);
+  
+  
+  if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
 }
 
+//Lerp Config
+const lerpConfig = {
+  destination: new THREE.Vector3(),
+  alpha: 0.08,
+  move: true
+}
+
+//Create aim
+let aim = createAim();
+scene.add(aim);
+
 //Mouse Movement Listener
-document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+document.addEventListener("mousemove", updateAim);
 
 //Update Aim
-function updateAim()
+function updateAim(mouse)
 {
-  aim.position.x = mouseX;
-  aim.position.y = mouseY;
+  let aimPosMin = new THREE.Vector3(-60, 40.0, -100);
+  let aimPosMax = new THREE.Vector3(60, 110.0, 100);
+  aim.position.x -= mouse.movementX/100;
+  aim.position.y -= mouse.movementY/100;
+  aim.position.clamp(aimPosMin, aimPosMax);
+}
+
+//Update Animation
+function updateAnimation(dist, quaternion)
+{
+  aircraft.lookAt(aim.position);
+  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
+  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+  dist = aircraft.position.x - aim.position.x;
+  quaternion = new THREE.Quaternion();
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 40 ) ) / 4);
+  aircraft.applyQuaternion(quaternion);
 }
 
 // Listen window size changes
-window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
+window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-// Show axes (parameter is size of each axis)
-let axesHelper = new THREE.AxesHelper( 12 );
-scene.add( axesHelper );
+let mapQueue = makeMapQueue();
+mapQueue.forEach(element => scene.add(element));
 
-// create the ground plane
-let plane = createGroundPlaneXZ(20, 20)
-scene.add(plane);
+let sun = makeSun();
+scene.add(sun)
 
-function aimControl(){
-  keyboard.update();
-  if (keyboard.pressed("S") )   aim.translateY(-1);
-  if (keyboard.pressed("W") )   aim.translateY(1);
-  if (keyboard.pressed("D") )   aim.translateX(-1);
-  if (keyboard.pressed("A") )   aim.translateX(1);
-  if (keyboard.pressed("B") )   aim.translateZ(-1);
-  if (keyboard.pressed("space") )   aim.translateZ(1);
-}
+const textureLoader = new THREE.TextureLoader();
+let textureEquirec = textureLoader.load( './sky.jpeg' );
+	textureEquirec.mapping = THREE.EquirectangularReflectionMapping; 
+	textureEquirec.encoding = THREE.sRGBEncoding;
+scene.background = textureEquirec
+
 render();
-function render()
-{
+
+function render() {
   requestAnimationFrame(render);
+  updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
-  aimControl();
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
-  //console.log(aimPos);
-  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camLookMin, camLookMax);
-  //updateAim(event.clientX, Event.clientY, aim);
-  updateMapRow(scene, mapRow);
-  
-  //aim.translateX(MouseEvent.clientX);
-  //aim.translateY(MouseEvent.clientY);
-  //console.log(MouseEvent.clientX);
+  updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
+  updateMapQueue(scene, mapQueue);
+  updatePosition();
+  updateAnimation(dist, quaternion);
 }

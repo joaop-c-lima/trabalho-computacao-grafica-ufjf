@@ -1,21 +1,19 @@
 import * as THREE from  'three';
 
 export function createCamera(){
-    let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
     return camera;
 }
 
 
-export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camMin, camMax, camLookMin, camLookMax){
-    
-    let destination = new THREE.Vector3(aimPos.x, aimPos.y, -25);
-    destination.clamp(camMin, camMax);
+export function updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camMin, camMax, destination){
+    aimPos.clamp(camMin, camMax);
+    camera.lookAt(aimPos.x, aimPos.y, aimPos.z);
+    destination = new THREE.Vector3(aimPos.x, aimPos.y, -60);
     lerpCameraConfig = {
         destination: destination,
-        alpha: 0.05,
+        alpha: 0.02,
         move: true
     }
-    aimPos.clamp(camLookMin, camLookMax);
     cameraHolder.position.lerp(lerpCameraConfig.destination, lerpCameraConfig.alpha);
-    camera.lookAt(aimPos.x, aimPos.y, aimPos.z);
 } 
