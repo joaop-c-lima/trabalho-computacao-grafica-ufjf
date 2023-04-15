@@ -1,7 +1,8 @@
 import * as THREE from  'three';
 import {initRenderer, 
         initDefaultBasicLight,
-        onWindowResize} from "../libs/util/util.js";
+        onWindowResize,
+        degreesToRadians} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
@@ -63,7 +64,7 @@ function updateAim(mouse)
 {
   let aimPosMin = new THREE.Vector3(-60, 40.0, -100);
   let aimPosMax = new THREE.Vector3(60, 110.0, 100);
-  aim.position.x -= mouse.movementX/100;
+  aim.position.x -= mouse.movementX/50;
   aim.position.y -= mouse.movementY/100;
   aim.position.clamp(aimPosMin, aimPosMax);
 }
@@ -75,9 +76,17 @@ function updateAnimation(dist, quaternion)
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
   dist = aircraft.position.x - aim.position.x;
-  quaternion = new THREE.Quaternion();
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 40 ) ) / 4);
-  aircraft.applyQuaternion(quaternion);
+  if ((Math.PI * ( dist / 40 ) ) / 4 > degreesToRadians(45)) {
+    quaternion = new THREE.Quaternion();
+    quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), degreesToRadians(45));
+    aircraft.applyQuaternion(quaternion);
+  }
+  else {
+    quaternion = new THREE.Quaternion();
+    quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 40 ) ) / 4);
+    aircraft.applyQuaternion(quaternion);
+  }
+
 }
 
 // Listen window size changes
