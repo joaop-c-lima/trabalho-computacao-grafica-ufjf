@@ -25,7 +25,7 @@ export function createAim(){
     var crosshair = new THREE.Line( geometry, material );
     var crosshair2 = new THREE.Line( geometry2, material );
 
-    crosshair.position.set(3, 50, 30)
+    crosshair.position.set(0, 55, 30)
     crosshair2.position.set(0, 0, 0)
 
     crosshair.add(crosshair2)
