@@ -1,7 +1,8 @@
 import * as THREE from  'three';
 import {initRenderer, 
         initDefaultBasicLight,
-        onWindowResize} from "../libs/util/util.js";
+        onWindowResize,
+        degreesToRadians} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
@@ -89,7 +90,7 @@ function updateAim(mouse)
 {
   let aimPosMin = new THREE.Vector3(-60, 40.0, -100);
   let aimPosMax = new THREE.Vector3(60, 110.0, 100);
-  aim.position.x -= mouse.movementX/100;
+  aim.position.x -= mouse.movementX/50;
   aim.position.y -= mouse.movementY/100;
   aim.position.clamp(aimPosMin, aimPosMax);
 }
