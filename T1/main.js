@@ -42,13 +42,13 @@ aircraft.position.set(0.0, 55.0, 0.0);
 let raycaster = new THREE.Raycaster();
 let plane, planeGeometry, planeMaterial, objects;
 objects = [];
-planeGeometry = new THREE.PlaneGeometry(130, 100, 20, 20);
+planeGeometry = new THREE.PlaneGeometry(160, 140, 20, 20);
 planeMaterial = new THREE.MeshLambertMaterial();
 planeMaterial.side = THREE.DoubleSide;
 planeMaterial.transparent = true;
-planeMaterial.opacity = 0.0;
+planeMaterial.opacity = 0.5;
 plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.position.set(0,60,-5);
+plane.position.set(0,60,10);
 scene.add(plane);
 objects.push(plane);
 window.addEventListener('mousemove', onMouseMove);
@@ -98,13 +98,13 @@ function updateAim(mouse)
 //Update Animation
 function updateAnimation(dist, quaternion)
 {
-  aircraft.lookAt(aim.position);
+  aircraft.lookAt(aircraft.position.x, aim.position.y, aircraft.position.z+25);
+  console.log(aim.position.y)
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
   dist = aircraft.position.x - aim.position.x;
-  console.log(dist)
-  if(dist<-35) {dist = -30};
-  if(dist>35) {dist = 30}
+  if(dist<-25) {dist = -30};
+  if(dist>25) {dist = 30}
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 20 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
