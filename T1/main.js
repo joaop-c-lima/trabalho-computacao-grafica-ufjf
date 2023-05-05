@@ -46,7 +46,7 @@ planeGeometry = new THREE.PlaneGeometry(160, 140, 20, 20);
 planeMaterial = new THREE.MeshLambertMaterial();
 planeMaterial.side = THREE.DoubleSide;
 planeMaterial.transparent = true;
-planeMaterial.opacity = 0.5;
+planeMaterial.opacity = 0.0;
 plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.position.set(0,60,10);
 scene.add(plane);
@@ -99,12 +99,11 @@ function updateAim(mouse)
 function updateAnimation(dist, quaternion)
 {
   aircraft.lookAt(aircraft.position.x, aim.position.y, aircraft.position.z+25);
-  console.log(aim.position.y)
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
   dist = aircraft.position.x - aim.position.x;
-  if(dist<-25) {dist = -30};
-  if(dist>25) {dist = 30}
+  if(dist<-30) {dist = -30};
+  if(dist>30) {dist = 30}
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 20 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
@@ -135,6 +134,5 @@ function render() {
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   updateMapQueue(scene, mapQueue);
   updatePosition();
-  updateAnimation(dist, quaternion)
-  //console.log(aircraft.position.z)
+  updateAnimation(dist, quaternion);
 }
