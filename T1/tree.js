@@ -21,7 +21,7 @@ export function makeRandomTree() {
 
 // Create and return a random trunk
 export function makeRandomTrunk() {
-    let trunkMaterial = new THREE.MeshBasicMaterial({ color: TRUNK_COLOR});
+    let trunkMaterial = new THREE.MeshLambertMaterial({ color: TRUNK_COLOR});
     trunkMaterial.transparent = true;
     let trunkradius = getRndInteger(TRUNK_MIN_RADIUS, TRUNK_MAX_RADIUS) / 10;
     let trunkHeight = getRndInteger(TRUNK_MIN_HEIGHT, TRUNK_MAX_HEIGHT);
@@ -48,7 +48,7 @@ export function addLeaves(trunk) {
 
 // Create and return a random sheet. Radius and height of leaf (cone) can be limited
 export function makeLeaf(maxRadius = -1, maxHeight = -1) {
-    let leafMaterial = new THREE.MeshBasicMaterial({ color: LEAF_COLOR});
+    let leafMaterial = new THREE.MeshLambertMaterial({ color: LEAF_COLOR});
     leafMaterial.transparent = true;
     let leafRadius = getRndInteger(LEAF_MIN_RADIUS, maxRadius != -1 ? maxRadius : LEAF_MAX_RADIUS) / 10;
     let leafHeight = getRndInteger(LEAF_MIN_HEIGHT, maxHeight != -1 ? maxHeight : LEAF_MAX_HEIGHT);

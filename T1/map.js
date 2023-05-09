@@ -34,7 +34,7 @@ export function addMapInQueue(mapQueue) {
 
 // Creates the map along with randomly placed trees
 export function makeMap() {
-  let mapMaterial = new THREE.MeshBasicMaterial({ color: MAP_COLOR});
+  let mapMaterial = new THREE.MeshLambertMaterial({ color: MAP_COLOR});
   mapMaterial.transparent = true;
   let mapGeometry = new THREE.BoxGeometry(MAP_X, MAP_Y, MAP_Z);
   let map = new THREE.Mesh(mapGeometry, mapMaterial);

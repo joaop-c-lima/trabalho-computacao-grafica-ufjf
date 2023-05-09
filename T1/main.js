@@ -2,7 +2,8 @@ import * as THREE from  'three';
 import {initRenderer, 
         initDefaultBasicLight,
         onWindowResize,
-        degreesToRadians} from "../libs/util/util.js";
+        degreesToRadians,
+      createGroundPlaneWired} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
@@ -40,17 +41,17 @@ aircraft.position.set(0.0, 55.0, 0.0);
 
 //Raycaster
 let raycaster = new THREE.Raycaster();
-let plane, planeGeometry, planeMaterial, objects;
+let raycasterPlane, raycasterPlaneGeometry, raycasterPlaneMaterial, objects;
 objects = [];
-planeGeometry = new THREE.PlaneGeometry(160, 140, 20, 20);
-planeMaterial = new THREE.MeshLambertMaterial();
-planeMaterial.side = THREE.DoubleSide;
-planeMaterial.transparent = true;
-planeMaterial.opacity = 0.0;
-plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.position.set(0,60,10);
-scene.add(plane);
-objects.push(plane);
+raycasterPlaneGeometry = new THREE.PlaneGeometry(160, 140, 20, 20);
+raycasterPlaneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"});
+raycasterPlaneMaterial.side = THREE.DoubleSide;
+raycasterPlaneMaterial.transparent = true;
+raycasterPlaneMaterial.opacity = 0.5;
+raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
+raycasterPlane.position.set(0,60,120);
+scene.add(raycasterPlane);
+objects.push(raycasterPlane);
 window.addEventListener('mousemove', onMouseMove);
 function onMouseMove(event){
   let point;
@@ -79,7 +80,7 @@ const lerpConfig = {
 
 //Create aim
 let aim = createAim();
-//scene.add(aim);
+scene.add(aim);
 
 //Mouse Movement Listener
 //document.addEventListener("mousemove", updateAim);
@@ -125,14 +126,14 @@ let textureEquirec = textureLoader.load( './sky.jpeg' );
 scene.background = textureEquirec
 
 render();
-
+camera.lookAt(aim.position.x, aim.position.y, aim.position.z);
 function render() {
   requestAnimationFrame(render);
   updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
   aimPos = new THREE.Vector3(aim.position.x, aim.position.y, aim.position.z);
   updateCamera(camera, aimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
-  updateMapQueue(scene, mapQueue);
+  //updateMapQueue(scene, mapQueue);
   updatePosition();
   updateAnimation(dist, quaternion);
 }
