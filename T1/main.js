@@ -9,8 +9,11 @@ import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
 import { makeMapQueue, updateMapQueue } from './map.js';
 import { makeSun } from './sun.js';
+import { loadOBJFile } from './loadObjects.js';
 
-let scene, renderer, camera, light, aircraftPos, prevAircraftPos, lerpCameraConfig, camPosMin, camPosMax, aircraft, camDestination, dist, quaternion;; // Initial variables
+let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
+aircraft, camDestination, dist, quaternion;;
+let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 
@@ -19,7 +22,7 @@ camera = createCamera();
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-20, 100, -200);
+camPosMin = new THREE.Vector3(-20, 120, -200);
 camPosMax = new THREE.Vector3(20, 190, 200);
 cameraHolder.position.set(0, 135, -60);
 
@@ -27,7 +30,7 @@ cameraHolder.position.set(0, 135, -60);
 light = initDefaultBasicLight(scene); 
 
 //Mouse invisibility
-//document.body.style.cursor = 'none';
+document.body.style.cursor = 'none';
 
 //Pointer Lock
 /*const canvas = document.querySelector("canvas");
@@ -36,7 +39,9 @@ canvas.addEventListener("click", async () => {
 });*/
 
 //Create plane
-aircraft = createPlane(scene);
+loadOBJFile('../T1/customModels', 'A10_plane', true, 10.5);
+//aircraft = loadOBJFile('../T1/customModels', 'A10_plane', true, 1.5);
+aircraft = createPlane(scene)
 aircraft.position.set(0.0, 55.0, 0.0);
 
 //Raycaster
@@ -49,7 +54,7 @@ raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
 raycasterPlaneMaterial.opacity = 0.5;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
-//raycasterPlane.position.set(0,140,120);
+raycasterPlane.position.set(0,0,0);
 cameraHolder.add(raycasterPlane);
 raycasterPlane.translateZ(220)
 objects.push(raycasterPlane);
@@ -65,8 +70,8 @@ function onMouseMove(event){
   point =intersects[0].point;
   //console.log(intersects[0])
   //point.z =160
-  let worldPlanePos = new THREE.Vector3;
-  raycasterPlane.getWorldPosition(worldPlanePos);
+  //let worldPlanePos = new THREE.Vector3;
+  //raycasterPlane.getWorldPosition(worldPlanePos);
   //console.log(worldPos)
   //aim.position.x = point.x-worldPlanePos.x;
   //aim.position.y = point.y-worldPlanePos.y;
@@ -76,15 +81,17 @@ function onMouseMove(event){
   //console.log(aim.position.x)
   cameraHolder.attach(aim)
   //cameraHolder.attach(raycasterPlane)
-  let worldAimPos = new THREE.Vector3;
-  raycasterPlane.getWorldPosition(worldAimPos);
+  //let worldAimPos = new THREE.Vector3;
+  //aim.getWorldPosition(worldAimPos);
   //console.log("point z",point.z)
   //console.log(worldAimPos.x)
-  lerpConfig.destination.set(aim.position.x, aim.position.y+worldAimPos.y, aircraft.position.z);
+  //lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
 
 }
 //Update Position
-function updatePosition() {
+function updatePosition(worldAimPos) {
+  aim.getWorldPosition(worldAimPos);
+  lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
   if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
 }
 
@@ -117,7 +124,7 @@ function updateAim(mouse)
 function updateAnimation(dist, quaternion)
 {
   let worldAimPos = new THREE.Vector3;
-  raycasterPlane.getWorldPosition(worldAimPos);
+  aim.getWorldPosition(worldAimPos);
   aircraft.lookAt(aircraft.position.x, worldAimPos.y, aircraft.position.z+25);
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
@@ -151,9 +158,11 @@ function render() {
   requestAnimationFrame(render);
   updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
-  aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
-  updateCamera(aircraftPos, aim, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
+  //aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
+
   //updateMapQueue(scene, mapQueue);
-  updatePosition();
+  
+  updatePosition(worldAimPos);
+  updateCamera(worldAimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   updateAnimation(dist, quaternion);
 }
