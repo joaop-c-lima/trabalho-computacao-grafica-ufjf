@@ -19,8 +19,8 @@ camera = createCamera();
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-20, 100, -100);
-camPosMax = new THREE.Vector3(20, 190, 100);
+camPosMin = new THREE.Vector3(-20, 100, -200);
+camPosMax = new THREE.Vector3(20, 190, 200);
 cameraHolder.position.set(0, 135, -60);
 
 // Create a basic light to illuminate the scene
@@ -51,7 +51,7 @@ raycasterPlaneMaterial.opacity = 0.5;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
 //raycasterPlane.position.set(0,140,120);
 cameraHolder.add(raycasterPlane);
-raycasterPlane.translateZ(160)
+raycasterPlane.translateZ(220)
 objects.push(raycasterPlane);
 window.addEventListener('mousemove', onMouseMove);
 function onMouseMove(event){
@@ -59,9 +59,12 @@ function onMouseMove(event){
   let pointer = new THREE.Vector2();
   pointer.x =  (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  //scene.attach(raycasterPlane);
   raycaster.setFromCamera(pointer, camera);
   let intersects = raycaster.intersectObjects(objects);
   point =intersects[0].point;
+  //console.log(intersects[0])
+  //point.z =160
   let worldPlanePos = new THREE.Vector3;
   raycasterPlane.getWorldPosition(worldPlanePos);
   //console.log(worldPos)
@@ -69,10 +72,14 @@ function onMouseMove(event){
   //aim.position.y = point.y-worldPlanePos.y;
   scene.attach(aim);
   aim.position.set(point.x, point.y, 160);
+  //console.log("point x",point.x)
+  //console.log(aim.position.x)
   cameraHolder.attach(aim)
+  //cameraHolder.attach(raycasterPlane)
   let worldAimPos = new THREE.Vector3;
   raycasterPlane.getWorldPosition(worldAimPos);
-  console.log(worldAimPos.x)
+  //console.log("point z",point.z)
+  //console.log(worldAimPos.x)
   lerpConfig.destination.set(aim.position.x, aim.position.y+worldAimPos.y, aircraft.position.z);
 
 }
@@ -99,8 +106,8 @@ raycasterPlane.add(aim);
 //Update Aim
 function updateAim(mouse)
 {
-  let aimPosMin = new THREE.Vector3(-60, 40.0, -100);
-  let aimPosMax = new THREE.Vector3(60, 110.0, 100);
+  let aimPosMin = new THREE.Vector3(-60, 40.0, -200);
+  let aimPosMax = new THREE.Vector3(60, 110.0, 200);
   aim.position.x -= mouse.movementX/50;
   aim.position.y -= mouse.movementY/100;
   aim.position.clamp(aimPosMin, aimPosMax);
