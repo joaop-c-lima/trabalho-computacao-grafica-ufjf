@@ -43,14 +43,15 @@ aircraft.position.set(0.0, 55.0, 0.0);
 let raycaster = new THREE.Raycaster();
 let raycasterPlane, raycasterPlaneGeometry, raycasterPlaneMaterial, objects;
 objects = [];
-raycasterPlaneGeometry = new THREE.PlaneGeometry(160, 140, 20, 20);
+raycasterPlaneGeometry = new THREE.PlaneGeometry(560, 140, 20, 20);
 raycasterPlaneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"});
 raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
 raycasterPlaneMaterial.opacity = 0.5;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
-raycasterPlane.position.set(0,140,120);
-scene.add(raycasterPlane);
+//raycasterPlane.position.set(0,140,120);
+cameraHolder.add(raycasterPlane);
+raycasterPlane.translateZ(160)
 objects.push(raycasterPlane);
 window.addEventListener('mousemove', onMouseMove);
 function onMouseMove(event){
@@ -61,9 +62,18 @@ function onMouseMove(event){
   raycaster.setFromCamera(pointer, camera);
   let intersects = raycaster.intersectObjects(objects);
   point =intersects[0].point;
-  aim.position.x = point.x;
-  aim.position.y = point.y;
-  lerpConfig.destination.set(aim.position.x, aim.position.y, aircraft.position.z);
+  let worldPlanePos = new THREE.Vector3;
+  raycasterPlane.getWorldPosition(worldPlanePos);
+  //console.log(worldPos)
+  //aim.position.x = point.x-worldPlanePos.x;
+  //aim.position.y = point.y-worldPlanePos.y;
+  scene.attach(aim);
+  aim.position.set(point.x, point.y, 160);
+  cameraHolder.attach(aim)
+  let worldAimPos = new THREE.Vector3;
+  raycasterPlane.getWorldPosition(worldAimPos);
+  console.log(worldAimPos.x)
+  lerpConfig.destination.set(aim.position.x, aim.position.y+worldAimPos.y, aircraft.position.z);
 
 }
 //Update Position
@@ -80,7 +90,7 @@ const lerpConfig = {
 
 //Create aim
 let aim = createAim();
-scene.add(aim);
+raycasterPlane.add(aim);
 
 //Mouse Movement Listener
 //document.addEventListener("mousemove", updateAim);
@@ -99,10 +109,12 @@ function updateAim(mouse)
 //Update Animation
 function updateAnimation(dist, quaternion)
 {
-  aircraft.lookAt(aircraft.position.x, aim.position.y, aircraft.position.z+25);
+  let worldAimPos = new THREE.Vector3;
+  raycasterPlane.getWorldPosition(worldAimPos);
+  aircraft.lookAt(aircraft.position.x, worldAimPos.y, aircraft.position.z+25);
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
-  dist = aircraft.position.x - aim.position.x;
+  dist = aircraft.position.x - worldAimPos.x;
   if(dist<-30) {dist = -30};
   if(dist>30) {dist = 30}
   quaternion = new THREE.Quaternion();
@@ -133,7 +145,7 @@ function render() {
   updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
   aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
-  updateCamera(aircraftPos, prevAircraftPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
+  updateCamera(aircraftPos, aim, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
   //updateMapQueue(scene, mapQueue);
   updatePosition();
   updateAnimation(dist, quaternion);
