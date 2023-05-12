@@ -9,13 +9,16 @@ import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
 import { makeMapQueue, updateMapQueue } from './map.js';
 import { makeSun } from './sun.js';
-import { loadOBJFile } from './loadObjects.js';
+import {loadGLBFile} from './loadObjects.js'
+import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 
 let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
 aircraft, camDestination, dist, quaternion;;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
+
+
 
 //Camera parameters
 camera = createCamera();
@@ -39,9 +42,30 @@ canvas.addEventListener("click", async () => {
 });*/
 
 //Create plane
-loadOBJFile('../T1/customModels', 'A10_plane', true, 10.5);
-//aircraft = loadOBJFile('../T1/customModels', 'A10_plane', true, 1.5);
-aircraft = createPlane(scene)
+//const loader = new GLTFLoader();
+
+/*loader.load( './customObjects/A10.glb', function ( gltf ) {
+
+	//scene.add( gltf.scene );
+  //gltf.scene.position.set(0,90,-50)
+  //aircraft = createPlane(scene)
+  //aircraft = gltf.scene;
+
+}, undefined, function ( error ) {
+
+	console.error( error );
+
+} );*/
+//const gltfLoader = new GLTFLoader();
+//gltfLoader.load('./customObjects/A10/scene.gltf'), (gltf) => {
+//  scene.add(gltf.scene);
+//  aircraft =  gltf.scene
+  
+//}
+//loadGLBFile('../T1/customObjects/', 'A10', true, 10.5);
+aircraft = loadGLBFile('./customObjects/', 'A10', true, 10.5);
+//aircraft = createPlane(scene)
+scene.add(aircraft)
 aircraft.position.set(0.0, 55.0, 0.0);
 
 //Raycaster
@@ -134,6 +158,8 @@ function updateAnimation(dist, quaternion)
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 20 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 40 ) ) / 4);
+  aircraft.applyQuaternion(quaternion);
 }
 
 // Listen window size changes
@@ -158,7 +184,7 @@ function render() {
   requestAnimationFrame(render);
   updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
-  //aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
+  aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
 
   //updateMapQueue(scene, mapQueue);
   
