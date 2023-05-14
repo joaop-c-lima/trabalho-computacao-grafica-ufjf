@@ -4,7 +4,7 @@ import * as THREE from 'three';
 const SUN_RADIUS = 10
 const SUN_COLOR = "rgb(255,255,50)";
 const SUN_LIGHT_COLOR = "rgb(255,255,255)";
-const SUN_POSITION = new THREE.Vector3(0, 200, 1000);
+const SUN_POSITION = new THREE.Vector3(-200, 200, -100);
 const BACKLIGHT_STRENGHT = 0.3;
 
 // Create and return a sun with a spotlight
@@ -15,15 +15,18 @@ export function makeSun() {
     sun.position.copy(SUN_POSITION);
 
 
-    let sunLight = new THREE.SpotLight(SUN_LIGHT_COLOR);
-    sunLight.distance = 1000;
-    sunLight.intensity = 1
+    let sunLight = new THREE.DirectionalLight(SUN_LIGHT_COLOR);
+    sunLight.position.copy(SUN_POSITION);
     sunLight.castShadow = true;
-    sunLight.target.position.set(0,0,0);
-    sunLight.shadow.camera.near = 0.1;       
-    sunLight.shadow.camera.far = 10000;  
-    sunLight.shadow.mapSize = new THREE.Vector2(3000,3000);
-    sunLight.distance = 0;
+    sunLight.intensity = 1
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.camera.near = 1;
+    sunLight.shadow.camera.far = 1000;
+    sunLight.shadow.camera.left = -1000;
+    sunLight.shadow.camera.right = 1000;
+    sunLight.shadow.camera.top = 1000;
+    sunLight.shadow.camera.bottom = -1000;
     sun.add(sunLight)
 
     return sun;
