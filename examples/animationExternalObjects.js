@@ -77,6 +77,7 @@ function loadGLTFFile(modelName, centerObject)
     else {
       man = obj;
     }
+    console.log(obj)
     scene.add ( obj );
 
     // Create animationMixer and push it in the array of mixers

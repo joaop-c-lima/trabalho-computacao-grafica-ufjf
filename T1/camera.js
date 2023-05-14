@@ -6,19 +6,19 @@ export function createCamera(){
 }
 
 
-export function updateCamera(aircraftPos, lerpCameraConfig, cameraHolder, camMin, camMax, destination){
+export function updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camMin, camMax, destination){
     
     //camera.lookAt(aimPos.x, aimPos.y, aimPos.z);
-    if (aircraftPos.x>-40 && aircraftPos.x<40){aircraftPos.x = 0}
-    if (aircraftPos.y>130 && aircraftPos.y<180){aircraftPos.y = 155}
+    if (aim.position.x>-100 && aim.position.x<100){worldAimPos.x = cameraHolder.position.x}
+    if (aim.position.y>-50 && aim.position.y<50){ worldAimPos.y = cameraHolder.position.y}
     //console.log(aircraftPos.x)
     //console.log(aircraftPos.y)
-    aircraftPos.clamp(camMin, camMax);
-    destination = new THREE.Vector3(aircraftPos.x, aircraftPos.y, -60);
+    worldAimPos.clamp(camMin, camMax);
+    destination = new THREE.Vector3(worldAimPos.x, worldAimPos.y, -60);
     //console.log(aircraftPos.y)
     lerpCameraConfig = {
         destination: destination,
-        alpha: 0.04,
+        alpha: 0.005,
         move: true
     }
     cameraHolder.position.lerp(lerpCameraConfig.destination, lerpCameraConfig.alpha);

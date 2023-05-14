@@ -9,11 +9,14 @@ import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
 import { makeMapQueue, updateMapQueue } from './map.js';
 import { makeSun } from './sun.js';
-import {loadGLBFile} from './loadObjects.js'
+//import {loadGLBFile} from './loadObjects.js'
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import { getMaxSize } from '../libs/util/util.js';
 
 let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
-aircraft, camDestination, dist, quaternion;;
+ camDestination, dist, quaternion;;
+var aircraft;
+let spawn = false;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
@@ -25,8 +28,8 @@ camera = createCamera();
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-20, 120, -200);
-camPosMax = new THREE.Vector3(20, 190, 200);
+camPosMin = new THREE.Vector3(-150, 120, -200);
+camPosMax = new THREE.Vector3(150, 190, 200);
 cameraHolder.position.set(0, 135, -60);
 
 // Create a basic light to illuminate the scene
@@ -61,12 +64,64 @@ canvas.addEventListener("click", async () => {
 //  scene.add(gltf.scene);
 //  aircraft =  gltf.scene
   
+
 //}
-//loadGLBFile('../T1/customObjects/', 'A10', true, 10.5);
-aircraft = loadGLBFile('./customObjects/', 'A10', true, 10.5);
+//loadGLBFile('./customObjects/', 'A10', true, 10.5);
+//aircraft = loadGLBFile('./customObjects/', 'A10', true, 10.5);
 //aircraft = createPlane(scene)
-scene.add(aircraft)
-aircraft.position.set(0.0, 55.0, 0.0);
+
+//scene.add(aircraft)
+loadGLBFile('./customObjects/', 'A10', true, 10);
+//aircraft.position.set(0.0, 55.0, 0.0);
+
+
+export function loadGLBFile(modelPath, modelName, visibility, desiredScale)
+{
+   var loader = new GLTFLoader( );
+   loader.load( modelPath + modelName + '.glb', function ( gltf ) {
+      aircraft = gltf.scene;
+      aircraft.name = modelName;
+      aircraft.visible = visibility;
+      aircraft.traverse( function ( child ) {
+         if ( child ) {
+            child.castShadow = true;
+         }
+      });
+      aircraft.traverse( function( node )
+      {
+         if( node.material ) node.material.side = THREE.DoubleSide;
+      });
+      //console.log(obj)
+      aircraft = normalizeAndRescale(aircraft, desiredScale);
+      //var obj = fixPosition(obj);
+      //aircraft = obj;
+      //console.log("ok")
+      //scene.add ( obj );
+      //assetManager[modelName] = obj; 
+      //console.log(aircraft)
+      //return obj;      
+    });
+}
+
+function normalizeAndRescale(obj, newScale)
+{
+  var scale = getMaxSize(obj); 
+  obj.scale.set(newScale * (1.0/scale),
+                newScale * (1.0/scale),
+                newScale * (1.0/scale));
+  return obj;
+}
+
+function fixPosition(obj)
+{
+  // Fix position of the object over the ground plane
+  var box = new THREE.Box3().setFromObject( obj );
+  if(box.min.y > 0)
+    obj.translateY(-box.min.y);
+  else
+    obj.translateY(-1*box.min.y);
+  return obj;
+}
 
 //Raycaster
 let raycaster = new THREE.Raycaster();
@@ -113,10 +168,12 @@ function onMouseMove(event){
 
 }
 //Update Position
-function updatePosition(worldAimPos) {
+function updatePosition() {
+  
   aim.getWorldPosition(worldAimPos);
   lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
   if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
+  
 }
 
 //Lerp Config
@@ -147,8 +204,9 @@ function updateAim(mouse)
 //Update Animation
 function updateAnimation(dist, quaternion)
 {
-  let worldAimPos = new THREE.Vector3;
-  aim.getWorldPosition(worldAimPos);
+  
+  //let worldAimPos = new THREE.Vector3;
+  //aim.getWorldPosition(worldAimPos);
   aircraft.lookAt(aircraft.position.x, worldAimPos.y, aircraft.position.z+25);
   aircraft.rotateY(THREE.MathUtils.degToRad(-90));
   aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
@@ -160,6 +218,7 @@ function updateAnimation(dist, quaternion)
   aircraft.applyQuaternion(quaternion);
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 40 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
+  
 }
 
 // Listen window size changes
@@ -181,14 +240,24 @@ camera.lookAt(aim.position.x, aim.position.y, aim.position.z);
 
 render();
 function render() {
+  //console.log(aircraft['obj'])
   requestAnimationFrame(render);
   updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
-  aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
+  //aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
 
   //updateMapQueue(scene, mapQueue);
-  
-  updatePosition(worldAimPos);
-  updateCamera(worldAimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
-  updateAnimation(dist, quaternion);
+  if (aircraft){
+    if (!spawn){
+      aircraft.position.set(0.0, 135.0, 0.0);
+      spawn = true;
+    }
+    updatePosition();
+    //updateAnimation(dist, quaternion);
+
+  }
+  //console.log(aircraft)
+  console.log(aim.position)
+  //mira vai de -130 a 130 localmente
+  updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
 }
