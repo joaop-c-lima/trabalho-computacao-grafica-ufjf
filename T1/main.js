@@ -14,7 +14,7 @@ import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import { getMaxSize } from '../libs/util/util.js';
 
 let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
- camDestination, dist, quaternion;;
+ aimPosMin, aimPosMax, camDestination, dist, quaternion;;
 var aircraft;
 let spawn = false;
 let worldAimPos = new THREE.Vector3; // Initial variables
@@ -28,9 +28,12 @@ camera = createCamera();
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-camPosMin = new THREE.Vector3(-150, 120, -200);
-camPosMax = new THREE.Vector3(150, 190, 200);
+//camPosMin = new THREE.Vector3(-200, 80, -200);
+//camPosMax = new THREE.Vector3(200, 190, 200);
 cameraHolder.position.set(0, 135, -60);
+
+aimPosMin = new THREE.Vector2(-200, 70)
+aimPosMax = new THREE.Vector2(200, 200)
 
 // Create a basic light to illuminate the scene
 light = initDefaultBasicLight(scene); 
@@ -68,14 +71,14 @@ canvas.addEventListener("click", async () => {
 //}
 //loadGLBFile('./customObjects/', 'A10', true, 10.5);
 //aircraft = loadGLBFile('./customObjects/', 'A10', true, 10.5);
-//aircraft = createPlane(scene)
+aircraft = createPlane(scene)
 
 //scene.add(aircraft)
-loadGLBFile('./customObjects/', 'A10', true, 10);
+//loadGLBFile('./customObjects/', 'A10', true, 10);
 //aircraft.position.set(0.0, 55.0, 0.0);
 
 
-export function loadGLBFile(modelPath, modelName, visibility, desiredScale)
+function loadGLBFile(modelPath, modelName, visibility, desiredScale)
 {
    var loader = new GLTFLoader( );
    loader.load( modelPath + modelName + '.glb', function ( gltf ) {
@@ -91,14 +94,12 @@ export function loadGLBFile(modelPath, modelName, visibility, desiredScale)
       {
          if( node.material ) node.material.side = THREE.DoubleSide;
       });
-      //console.log(obj)
       aircraft = normalizeAndRescale(aircraft, desiredScale);
       //var obj = fixPosition(obj);
+      //aircraft = fixPosition(aircraft);
       //aircraft = obj;
-      //console.log("ok")
       //scene.add ( obj );
       //assetManager[modelName] = obj; 
-      //console.log(aircraft)
       //return obj;      
     });
 }
@@ -127,15 +128,15 @@ function fixPosition(obj)
 let raycaster = new THREE.Raycaster();
 let raycasterPlane, raycasterPlaneGeometry, raycasterPlaneMaterial, objects;
 objects = [];
-raycasterPlaneGeometry = new THREE.PlaneGeometry(560, 140, 20, 20);
+raycasterPlaneGeometry = new THREE.PlaneGeometry(560, 190, 20, 20);
 raycasterPlaneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"});
 raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
-raycasterPlaneMaterial.opacity = 0.5;
+raycasterPlaneMaterial.opacity = 0;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
 raycasterPlane.position.set(0,0,0);
 cameraHolder.add(raycasterPlane);
-raycasterPlane.translateZ(220)
+raycasterPlane.translateZ((-cameraHolder.position.z) + 160)
 objects.push(raycasterPlane);
 window.addEventListener('mousemove', onMouseMove);
 function onMouseMove(event){
@@ -147,24 +148,10 @@ function onMouseMove(event){
   raycaster.setFromCamera(pointer, camera);
   let intersects = raycaster.intersectObjects(objects);
   point =intersects[0].point;
-  //console.log(intersects[0])
-  //point.z =160
-  //let worldPlanePos = new THREE.Vector3;
-  //raycasterPlane.getWorldPosition(worldPlanePos);
-  //console.log(worldPos)
-  //aim.position.x = point.x-worldPlanePos.x;
-  //aim.position.y = point.y-worldPlanePos.y;
+  point.clamp(aimPosMin,aimPosMax);
   scene.attach(aim);
   aim.position.set(point.x, point.y, 160);
-  //console.log("point x",point.x)
-  //console.log(aim.position.x)
-  cameraHolder.attach(aim)
-  //cameraHolder.attach(raycasterPlane)
-  //let worldAimPos = new THREE.Vector3;
-  //aim.getWorldPosition(worldAimPos);
-  //console.log("point z",point.z)
-  //console.log(worldAimPos.x)
-  //lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
+  cameraHolder.attach(aim);
 
 }
 //Update Position
@@ -192,13 +179,25 @@ raycasterPlane.add(aim);
 //document.addEventListener("mousemove", raycasterFunction);
 
 //Update Aim
-function updateAim(mouse)
+function updateAim()
 {
-  let aimPosMin = new THREE.Vector3(-60, 40.0, -200);
-  let aimPosMax = new THREE.Vector3(60, 110.0, 200);
-  aim.position.x -= mouse.movementX/50;
-  aim.position.y -= mouse.movementY/100;
-  aim.position.clamp(aimPosMin, aimPosMax);
+  scene.attach(aim);
+  if (aim.position.x > aimPosMax.x){
+    aim.position.x = (aimPosMax.x);
+  }
+
+  if (aim.position.x < aimPosMin.x){
+    aim.position.x = (aimPosMin.x);
+  }
+
+  if (aim.position.y > aimPosMax.y){
+    aim.position.y = (aimPosMax.y);
+  }
+
+  if (aim.position.y < aimPosMin.y){
+    aim.position.y = (aimPosMin.y);
+  }
+  cameraHolder.attach(aim);
 }
 
 //Update Animation
@@ -216,7 +215,7 @@ function updateAnimation(dist, quaternion)
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 20 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 40 ) ) / 4);
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 30 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
   
 }
@@ -240,7 +239,6 @@ camera.lookAt(aim.position.x, aim.position.y, aim.position.z);
 
 render();
 function render() {
-  //console.log(aircraft['obj'])
   requestAnimationFrame(render);
   updateMapQueue(scene, mapQueue);
   renderer.render(scene, camera) // Render scene
@@ -253,11 +251,9 @@ function render() {
       spawn = true;
     }
     updatePosition();
-    //updateAnimation(dist, quaternion);
+    updateAnimation(dist, quaternion);
 
   }
-  //console.log(aircraft)
-  console.log(aim.position)
-  //mira vai de -130 a 130 localmente
-  updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
+  updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
+  updateAim();
 }
