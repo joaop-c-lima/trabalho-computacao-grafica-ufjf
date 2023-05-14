@@ -6,6 +6,8 @@ const MAP_COLOR = "#228b22";
 const MAP_X = 500.0;
 const MAP_Y = 0.01;
 const MAP_Z = 10.0;
+const WALL_HEIGHT = 100.0;
+const WALL_COLOR = "#808487";
 const NUM_MAX_MAP = 100;
 const MAX_NON_VISIBLE_MAPS = 5;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
@@ -49,7 +51,23 @@ export function makeMap() {
       (trees[trees.length - 1].geometry.parameters.height + MAP_Y) / 2,
       getRndInteger(0, MAP_Z) - (MAP_Z / 2));
   }
+  let rightWall = makeWall();
+  let leftWall = makeWall();
+  map.add(rightWall);
+  rightWall.position.set(((-0.5) * MAP_X) - MAP_Y, (WALL_HEIGHT + MAP_Y) / 2, 0);
+  map.add(leftWall);
+  leftWall.position.set((0.5 * MAP_X) + MAP_Y, (WALL_HEIGHT + MAP_Y) / 2, 0)
   return map;
+}
+
+export function makeWall() {
+  let wallMaterial = new THREE.MeshLambertMaterial({ color: WALL_COLOR });
+  wallMaterial.transparent = true;
+  let wallGeometry = new THREE.BoxGeometry(MAP_Y, WALL_HEIGHT, MAP_Z);
+  let wall = new THREE.Mesh(wallGeometry, wallMaterial);
+  wall.receiveShadow = true;
+  wall.castShadow = true;
+  return wall;
 }
 
 // Remove map from queue and scene

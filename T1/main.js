@@ -24,7 +24,7 @@ camPosMax = new THREE.Vector3(20, 190, 100);
 cameraHolder.position.set(0, 135, -60);
 
 // Create a basic light to illuminate the scene
-//light = initDefaultBasicLight(scene); 
+light = initDefaultBasicLight(scene); 
 
 //Mouse invisibility
 //document.body.style.cursor = 'none';

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 const SUN_RADIUS = 10
 const SUN_COLOR = "rgb(255,255,50)";
 const SUN_LIGHT_COLOR = "rgb(255,255,255)";
-const SUN_POSITION = new THREE.Vector3(-200, 200, -100);
+const SUN_POSITION = new THREE.Vector3(200, 200, -100);
 const BACKLIGHT_STRENGHT = 0.3;
 
 // Create and return a sun with a spotlight
