@@ -30,11 +30,12 @@ export function addMapInQueue(mapQueue) {
   mapQueue.push(makeMap());
   mapQueue[mapQueue.length - 1].material.opacity = opacityLinearFunction(mapQueue[mapQueue.length - 2].position.z + MAP_Z);
   mapQueue[mapQueue.length - 1].position.set(0, 0, mapQueue[mapQueue.length - 2].position.z + MAP_Z);
+  changeOpacity(mapQueue[mapQueue.length - 1]);
 }
 
 // Creates the map along with randomly placed trees
 export function makeMap() {
-  let mapMaterial = new THREE.MeshLambertMaterial({ color: MAP_COLOR});
+  let mapMaterial = new THREE.MeshLambertMaterial({ color: MAP_COLOR });
   mapMaterial.transparent = true;
   let mapGeometry = new THREE.BoxGeometry(MAP_X, MAP_Y, MAP_Z);
   let map = new THREE.Mesh(mapGeometry, mapMaterial);

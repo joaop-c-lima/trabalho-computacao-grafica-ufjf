@@ -20,5 +20,5 @@ export function updateCamera(aircraftPos,prevAircraftPos, lerpCameraConfig, came
         move: true
     }
     cameraHolder.position.lerp(lerpCameraConfig.destination, lerpCameraConfig.alpha);
-    console.log(aircraftPos)
+    //console.log(aircraftPos)
 } 
