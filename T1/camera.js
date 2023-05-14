@@ -18,7 +18,7 @@ export function updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, d
     //console.log(aircraftPos.y)
     lerpCameraConfig = {
         destination: destination,
-        alpha: 0.02,
+        alpha: 0.04,
         move: true
     }
     cameraHolder.position.lerp(lerpCameraConfig.destination, lerpCameraConfig.alpha);

@@ -39,7 +39,7 @@ aimPosMax = new THREE.Vector2(200, 200)
 light = initDefaultBasicLight(scene); 
 
 //Mouse invisibility
-document.body.style.cursor = 'none';
+//document.body.style.cursor = 'none';
 
 //Pointer Lock
 /*const canvas = document.querySelector("canvas");
@@ -71,10 +71,10 @@ canvas.addEventListener("click", async () => {
 //}
 //loadGLBFile('./customObjects/', 'A10', true, 10.5);
 //aircraft = loadGLBFile('./customObjects/', 'A10', true, 10.5);
-aircraft = createPlane(scene)
+//aircraft = createPlane(scene)
 
 //scene.add(aircraft)
-//loadGLBFile('./customObjects/', 'A10', true, 10);
+loadGLBFile('./customObjects/', 'mig15', true, 10);
 //aircraft.position.set(0.0, 55.0, 0.0);
 
 
@@ -94,7 +94,9 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale)
       {
          if( node.material ) node.material.side = THREE.DoubleSide;
       });
-      aircraft = normalizeAndRescale(aircraft, desiredScale);
+      aircraft.scale.set(2,2,2);
+      scene.add(aircraft)
+      //aircraft = normalizeAndRescale(aircraft, desiredScale);
       //var obj = fixPosition(obj);
       //aircraft = fixPosition(aircraft);
       //aircraft = obj;
@@ -207,8 +209,8 @@ function updateAnimation(dist, quaternion)
   //let worldAimPos = new THREE.Vector3;
   //aim.getWorldPosition(worldAimPos);
   aircraft.lookAt(aircraft.position.x, worldAimPos.y, aircraft.position.z+25);
-  aircraft.rotateY(THREE.MathUtils.degToRad(-90));
-  aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
+  aircraft.rotateY(THREE.MathUtils.degToRad(45));
+  //aircraft.rotateZ(THREE.MathUtils.degToRad(-90));
   dist = aircraft.position.x - worldAimPos.x;
   if(dist<-30) {dist = -30};
   if(dist>30) {dist = 30}
