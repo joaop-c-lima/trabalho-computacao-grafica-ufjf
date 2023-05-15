@@ -26,8 +26,8 @@ cameraHolder.add(camera);
 scene.add(cameraHolder);
 cameraHolder.position.set(0, 115, -60);
 
-aimPosMin = new THREE.Vector3(-200, 70,-255);
-aimPosMax = new THREE.Vector3(200, 200,255);
+aimPosMin = new THREE.Vector3(-250, 70,-255);
+aimPosMax = new THREE.Vector3(250, 200,255);
 
 // Create a basic light to illuminate the scene
 light = initDefaultBasicLight(scene); 
@@ -155,8 +155,10 @@ function render() {
   renderer.render(scene, camera) // Render scene
   updateMapQueue(scene, mapQueue);
   aim.getWorldPosition(worldAimPos);
-  updatePosition();
-  updateAnimation(dist, quaternion);
+  if (aircraft){
+    updatePosition();
+    updateAnimation(dist, quaternion);
+  }
   updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
   updateAim();
 }
