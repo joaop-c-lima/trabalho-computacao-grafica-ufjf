@@ -7,7 +7,7 @@ import {initRenderer,
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { createPlane } from './createPlane.js';
-import { makeMapQueue, updateMapQueue } from './map.js';
+import { makeMap } from './map.js';
 import { makeSun } from './sun.js';
 
 let scene, renderer, camera, light, aircraftPos, prevAircraftPos, lerpCameraConfig, camPosMin, camPosMax, aircraft, camDestination, dist, quaternion;; // Initial variables
@@ -47,7 +47,7 @@ raycasterPlaneGeometry = new THREE.PlaneGeometry(160, 140, 20, 20);
 raycasterPlaneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"});
 raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
-raycasterPlaneMaterial.opacity = 0.5;
+raycasterPlaneMaterial.opacity = 0;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
 raycasterPlane.position.set(0,140,120);
 scene.add(raycasterPlane);
@@ -113,8 +113,8 @@ function updateAnimation(dist, quaternion)
 // Listen window size changes
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-let mapQueue = makeMapQueue();
-mapQueue.forEach(element => scene.add(element));
+let map = makeMap();
+map.queue.forEach(element => scene.add(element));
 
 let sun = makeSun();
 scene.add(sun)
@@ -130,11 +130,10 @@ camera.lookAt(aim.position.x, aim.position.y, aim.position.z);
 render();
 function render() {
   requestAnimationFrame(render);
-  updateMapQueue(scene, mapQueue);
+  map.updateMapQueue(scene)
   renderer.render(scene, camera) // Render scene
   aircraftPos = new THREE.Vector3(aircraft.position.x, aircraft.position.y, aircraft.position.z);
   updateCamera(aircraftPos, prevAircraftPos, lerpCameraConfig, cameraHolder, camPosMin, camPosMax, camDestination);
-  //updateMapQueue(scene, mapQueue);
   updatePosition();
   updateAnimation(dist, quaternion);
 }
