@@ -27,14 +27,14 @@ cameraHolder.add(camera);
 scene.add(cameraHolder);
 cameraHolder.position.set(0, 115, -60);
 
-aimPosMin = new THREE.Vector3(-250, 70,-255);
-aimPosMax = new THREE.Vector3(250, 200,255);
+aimPosMin = new THREE.Vector3(-235, 10,-255);
+aimPosMax = new THREE.Vector3(235, 200,255);
 
 // Create a basic light to illuminate the scene
 light = initDefaultBasicLight(scene); 
 
 //Mouse invisibility
-document.body.style.cursor = 'none';
+//document.body.style.cursor = 'none';
 
 loadGLBFile('./customObjects/', 'mig15', true, 2);
 
@@ -64,11 +64,11 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale)
 let raycaster = new THREE.Raycaster();
 let raycasterPlane, raycasterPlaneGeometry, raycasterPlaneMaterial, objects;
 objects = [];
-raycasterPlaneGeometry = new THREE.PlaneGeometry(560, 190, 20, 20);
+raycasterPlaneGeometry = new THREE.PlaneGeometry(930, 440, 20, 20);
 raycasterPlaneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"});
 raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
-raycasterPlaneMaterial.opacity = 0;
+raycasterPlaneMaterial.opacity = 0.5;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
 raycasterPlane.visible = false;
 raycasterPlane.position.set(0,0,0);
@@ -121,7 +121,7 @@ function updateAim()
 function updateAnimation(dist, quaternion)
 {
   
-  aircraft.lookAt(aircraft.position.x, worldAimPos.y, aircraft.position.z+25);
+  aircraft.lookAt(worldAimPos.x, worldAimPos.y, worldAimPos.z);
   aircraft.rotateY(THREE.MathUtils.degToRad(45));
   dist = aircraft.position.x - worldAimPos.x;
   if(dist<-30) {dist = -30};
@@ -129,8 +129,8 @@ function updateAnimation(dist, quaternion)
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 20 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 30 ) ) / 4);
-  aircraft.applyQuaternion(quaternion);
+  //quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 20 ) ) / 4);
+  //aircraft.applyQuaternion(quaternion);
   
 }
 
