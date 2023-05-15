@@ -34,7 +34,7 @@ aimPosMax = new THREE.Vector3(235, 200,255);
 light = initDefaultBasicLight(scene); 
 
 //Mouse invisibility
-//document.body.style.cursor = 'none';
+document.body.style.cursor = 'none';
 
 loadGLBFile('./customObjects/', 'mig15', true, 2);
 
