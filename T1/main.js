@@ -6,7 +6,8 @@ import {initRenderer,
       createGroundPlaneWired} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
-import { makeMapQueue, updateMapQueue } from './map.js';
+import { createPlane } from './createPlane.js';
+import { makeMap } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 
@@ -69,6 +70,7 @@ raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
 raycasterPlaneMaterial.opacity = 0;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
+raycasterPlane.visible = false;
 raycasterPlane.position.set(0,0,0);
 cameraHolder.add(raycasterPlane);
 raycasterPlane.translateZ((-cameraHolder.position.z) + 160)
@@ -135,8 +137,8 @@ function updateAnimation(dist, quaternion)
 // Listen window size changes
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-let mapQueue = makeMapQueue();
-mapQueue.forEach(element => scene.add(element));
+let map = makeMap();
+map.queue.forEach(element => scene.add(element));
 
 let sun = makeSun();
 scene.add(sun)
@@ -153,7 +155,7 @@ render();
 function render() {
   requestAnimationFrame(render);
   renderer.render(scene, camera) // Render scene
-  updateMapQueue(scene, mapQueue);
+  map.updateMapQueue(scene);
   aim.getWorldPosition(worldAimPos);
   if (aircraft){
     updatePosition();
