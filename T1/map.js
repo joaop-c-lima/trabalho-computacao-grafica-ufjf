@@ -119,12 +119,19 @@ export function makeMap() {
       mapPart.map = map;
       return mapPart;
     },
+    disposeAll: function (element, scene) {
+      element.children.forEach((child) => {
+        if (child.name != "TURRET")
+          this.disposeAll(child,scene);
+      });
+      element.geometry.dispose();
+      element.material.dispose();
+      scene.remove(element);
+    },
     // Remove map from queue and scene
     removeMap: function (scene) {
-      this.queue[0].map.geometry.dispose();
-      this.queue[0].map.material.dispose();
+      this.disposeAll(this.queue[0].map, scene)
       this.turretsVisible[this.queue[0].turret] = false;
-      scene.remove(this.queue[0]);
       this.queue.shift();
     },
     // Function that sets the opacity of an object given the Z of its position
@@ -190,7 +197,8 @@ export function makeMap() {
         }
       });
       map.turrets[i].mesh.scale.set(10, 10, 10);
-      map.turrets[i].mesh.rotateY(Math.PI / 2)
+      map.turrets[i].mesh.name = "TURRET";
+      map.turrets[i].mesh.rotateY(Math.PI / 2);
       map.turretsLoaded[i] = true;
     })
 
