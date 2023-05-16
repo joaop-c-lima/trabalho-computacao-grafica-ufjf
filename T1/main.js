@@ -6,7 +6,7 @@ import {initRenderer,
       createGroundPlaneWired} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
-import { makeMapQueue, updateMapQueue } from './map.js';
+import { makeMapQueue, updateMapQueue, speedController } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
@@ -157,8 +157,8 @@ function keyboardUpdate() {
 
   //Velocidades
   if( keyboard.down(1) ) { speedController(1) }
-  if( keyboard.down(2) ) { speedController(2) }
-  if( keyboard.down(3) ) { speedController(3) }
+  if( keyboard.down(2) ) { speedController(3) }
+  if( keyboard.down(3) ) { speedController(5) }
 
   //Pause
   if( keyboard.down('esc') ) { isPaused = !isPaused; document.body.style.cursor = 'auto'; } 
