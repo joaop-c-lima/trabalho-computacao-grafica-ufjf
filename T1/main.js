@@ -184,13 +184,12 @@ function keyboardUpdate() {
   if( keyboard.down('esc') ) { isPaused = !isPaused; document.body.style.cursor = 'auto'; } 
 }
 
-
 render();
 function render() {
   if(isPaused) {
     keyboardUpdate(); 
     requestAnimationFrame(render);
-    return;
+    document.addEventListener('click', function() {isPaused = false});
   } else {
     //Mouse invisibility
     document.body.style.cursor = 'none';
