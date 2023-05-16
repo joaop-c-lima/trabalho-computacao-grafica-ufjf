@@ -6,13 +6,13 @@ import {initRenderer,
       createGroundPlaneWired} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
-import { makeMapQueue, updateMapQueue, speedController } from './map.js';
+import { makeMap, updateMapQueue, speedController } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
 
 let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
- aimPosMin, aimPosMax, camDestination, dist, quaternion;;
+ aimPosMin, aimPosMax, camDestination, dist, quaternion;
 let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
