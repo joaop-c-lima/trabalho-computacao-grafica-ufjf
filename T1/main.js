@@ -9,6 +9,7 @@ import { createAim } from './aim.js';
 import { makeMapQueue, updateMapQueue } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import KeyboardState from '../libs/util/KeyboardState.js';
 
 let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
  aimPosMin, aimPosMax, camDestination, dist, quaternion;;
@@ -16,7 +17,6 @@ let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-
 
 
 //Camera parameters
@@ -32,8 +32,7 @@ aimPosMax = new THREE.Vector3(200, 200,255);
 // Create a basic light to illuminate the scene
 light = initDefaultBasicLight(scene); 
 
-//Mouse invisibility
-document.body.style.cursor = 'none';
+
 
 loadGLBFile('./customObjects/', 'mig15', true, 2);
 
@@ -149,14 +148,43 @@ scene.background = textureEquirec
 
 camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1);
 
+let isPaused = false;
+let keyboard = new KeyboardState();
+
+function keyboardUpdate() {
+
+  keyboard.update();
+
+  //Velocidades
+  if( keyboard.down(1) ) { speedController(1) }
+  if( keyboard.down(2) ) { speedController(2) }
+  if( keyboard.down(3) ) { speedController(3) }
+
+  //Pause
+  if( keyboard.down('esc') ) { isPaused = !isPaused; document.body.style.cursor = 'auto'; } 
+
+  if ( keyboard.down("A") ) { tiro(); console.log("1") }
+}
+
+
 render();
 function render() {
-  requestAnimationFrame(render);
-  renderer.render(scene, camera) // Render scene
-  updateMapQueue(scene, mapQueue);
-  aim.getWorldPosition(worldAimPos);
-  updatePosition();
-  updateAnimation(dist, quaternion);
-  updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
-  updateAim();
+  if(isPaused) {
+    keyboardUpdate(); 
+    requestAnimationFrame(render); 
+    return;
+  } else {
+    //Mouse invisibility
+    document.body.style.cursor = 'none';
+
+    requestAnimationFrame(render);
+    renderer.render(scene, camera) // Render scene
+    updateMapQueue(scene, mapQueue);
+    aim.getWorldPosition(worldAimPos);
+    updatePosition();
+    updateAnimation(dist, quaternion);
+    updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
+    updateAim();
+    keyboardUpdate();
+  }
 }
