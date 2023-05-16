@@ -138,7 +138,7 @@ function updateAnimation(dist, quaternion)
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
 let map = makeMap();
-map.queue.forEach(element => scene.add(element));
+map.queue.forEach(element => scene.add(element.map));
 
 let sun = makeSun();
 scene.add(sun)
