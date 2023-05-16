@@ -155,15 +155,15 @@ var bullets = [];
 function fireBullet(){
     // Create a bullet object
     var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
-    var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
     var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-    bullet.position.copy(aircraft.position);
+    bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
     var direction = new THREE.Vector3();
     direction.subVectors( worldAimPos, aircraft.position ).normalize();
   
     // Set the bullet velocity to be in the z direction
-    bullet.velocity = new THREE.Vector3(direction.x, direction.y, direction.z).multiplyScalar(5);
-  
+    bullet.velocity = direction;
+    bullet.destiny = new THREE.Vector3(direction.x, direction.y, direction.z)
     // Add the bullet to the scene and the bullets array
     scene.add(bullet);
     bullets.push(bullet);
@@ -205,16 +205,27 @@ function render() {
     updateAim();
     keyboardUpdate();
 
-
     for (var i = 0; i < bullets.length; i++) {
-      bullets[i].position.add(bullets[i].velocity);
-      
-      // Remove bullets that are offscreen
-      if (bullets[i].position.z < -1) {
-        scene.remove(bullets[i]);
-        bullets.splice(i, 1);
-        i--;
+      //bullets[i].position.add(bullets[i].x, bullets[i].y, bullets[i].z);
+       bullets[i].position.add(bullets[i].destiny);
+       console.log(bullets[i].position);
+       if (bullets[i].position.z > 1000) {
+         scene.remove(bullets[i]);
+         bullets.splice(i, 1);
+         i--;
+       }
       }
-    }
+
+
+    // for (var i = 0; i < bullets.length; i++) {
+    //   bullets[i].position.add(bullets[i].velocity);
+      
+    //   // Remove bullets that are offscreen
+    //   if (bullets[i].position.z < -1) {
+    //     scene.remove(bullets[i]);
+    //     bullets.splice(i, 1);
+    //     i--;
+    //   }
+    // }
   }
 }
