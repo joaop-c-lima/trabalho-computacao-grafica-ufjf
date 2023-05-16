@@ -17,7 +17,7 @@ let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-
+let m = false
 
 //Camera parameters
 camera = createCamera();
@@ -150,21 +150,18 @@ let isPaused = false;
 let keyboard = new KeyboardState();
 
 
-
 var bullets = [];
 function fireBullet(){
-    // Create a bullet object
     var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
     var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
     var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
     bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
     var direction = new THREE.Vector3();
-    direction.subVectors( worldAimPos, aircraft.position ).normalize();
-  
-    // Set the bullet velocity to be in the z direction
-    bullet.velocity = direction;
-    bullet.destiny = new THREE.Vector3(direction.x, direction.y, direction.z)
-    // Add the bullet to the scene and the bullets array
+    
+    bullet.velocity = direction
+    if(m) {bullet.move = true; direction.subVectors( worldAimPos, aircraft.position ).normalize();}
+    else {bullet.move = false}
+
     scene.add(bullet);
     bullets.push(bullet);
 }
@@ -198,33 +195,28 @@ function render() {
     renderer.render(scene, camera) // Render scene
     updateMapQueue(scene, mapQueue);
     aim.getWorldPosition(worldAimPos);
+
+     if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false }
+     else { m = true }
+
     updatePosition();
     updateAnimation(dist, quaternion);
     updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
     updateAim();
     keyboardUpdate();
 
+    if(bullets.length != 0) {
     for (var i = 0; i < bullets.length; i++) {
-      //bullets[i].position.add(bullets[i].x, bullets[i].y, bullets[i].z);
-       bullets[i].position.add(bullets[i].destiny);
-       console.log(bullets[i].position);
-       if (bullets[i].position.z > 1000) {
+      bullets[i].position.add(bullets[i].velocity) 
+       
+      if(!bullets[i].move) { bullets[i].translateZ(1) }
+
+      if (bullets[i].position.z > 1000) {
          scene.remove(bullets[i]);
          bullets.splice(i, 1);
          i--;
        }
       }
-
-
-    // for (var i = 0; i < bullets.length; i++) {
-    //   bullets[i].position.add(bullets[i].velocity);
-      
-    //   // Remove bullets that are offscreen
-    //   if (bullets[i].position.z < -1) {
-    //     scene.remove(bullets[i]);
-    //     bullets.splice(i, 1);
-    //     i--;
-    //   }
-    // }
+    }
   }
 }
