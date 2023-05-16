@@ -82,5 +82,8 @@ export function createPlane(scene){
 
     body.rotateX(THREE.MathUtils.degToRad(90));
     body.rotateY(THREE.MathUtils.degToRad(-90));
+    body.children.forEach((child) => {
+        child.castShadow = true;
+    });
     return body;
 }

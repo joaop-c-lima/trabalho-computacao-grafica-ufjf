@@ -28,6 +28,7 @@ export function makeRandomTrunk() {
     let trunkGeometry = new THREE.CylinderGeometry(trunkradius, trunkradius, trunkHeight, 32);
     let trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
     trunk.castShadow = true;
+    trunk.receiveShadow = true;
     addLeaves(trunk);
     return trunk
 }
@@ -55,6 +56,7 @@ export function makeLeaf(maxRadius = -1, maxHeight = -1) {
     let leafGeometry = new THREE.ConeGeometry(leafRadius, leafHeight, 32);
     let leaf = new THREE.Mesh(leafGeometry, leafMaterial);
     leaf.castShadow = true;
+    leaf.receiveShadow = true;
 
     return leaf;
 }
