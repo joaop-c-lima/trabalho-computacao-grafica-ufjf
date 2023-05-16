@@ -17,7 +17,9 @@ let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-let m = false
+let m = false; //Variável que indicará se o tiro foi feito em momento "estacionário" ou transitório
+let keyboard = new KeyboardState(); //Variável para o teclado
+
 
 //Camera parameters
 camera = createCamera();
@@ -33,7 +35,7 @@ aimPosMax = new THREE.Vector3(200, 200,255);
 light = initDefaultBasicLight(scene); 
 
 
-
+//Carrega o avião e o adiciona à cena
 loadGLBFile('./customObjects/', 'mig15', true, 2);
 
 function loadGLBFile(modelPath, modelName, visibility, desiredScale)
@@ -80,13 +82,14 @@ function onMouseMove(event){
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
   let intersects = raycaster.intersectObjects(objects);
-  point =intersects[0].point;
+  point = intersects[0].point;
   point.clamp(aimPosMin,aimPosMax);
   scene.attach(aim);
   aim.position.set(point.x, point.y, 160);
   cameraHolder.attach(aim);
 
 }
+
 //Update Position
 function updatePosition() {
   lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
@@ -146,26 +149,26 @@ scene.background = textureEquirec
 
 camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1);
 
-let isPaused = false;
-let keyboard = new KeyboardState();
+let isPaused = false; //Variável que define estado pausado/não pausado
 
 
 var bullets = [];
 function fireBullet(){
-    var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
-    var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-    bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
-    var direction = new THREE.Vector3();
-    
-    bullet.velocity = direction
-    if(m) {bullet.move = true; direction.subVectors( worldAimPos, aircraft.position ).normalize();}
-    else {bullet.move = false}
+  var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+  var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+  var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+  bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
+  var direction = new THREE.Vector3();
+  
+  bullet.velocity = direction;
+  if(m) { bullet.move = true; direction.subVectors( worldAimPos, aircraft.position ).normalize(); }
+  else { bullet.move = false }
 
-    scene.add(bullet);
-    bullets.push(bullet);
+  scene.add(bullet);
+  bullets.push(bullet);
 }
 
+//Listener do Tiro (Botão esquerdo do mouse)
 document.addEventListener("mousedown", fireBullet);
 
 function keyboardUpdate() {
@@ -187,17 +190,20 @@ function render() {
     keyboardUpdate(); 
     requestAnimationFrame(render);
     document.addEventListener('click', function() {isPaused = false});
+    
   } else {
     //Mouse invisibility
     document.body.style.cursor = 'none';
 
+    //Render scene
     requestAnimationFrame(render);
-    renderer.render(scene, camera) // Render scene
+    renderer.render(scene, camera) 
     updateMapQueue(scene, mapQueue);
     aim.getWorldPosition(worldAimPos);
 
-     if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false }
-     else { m = true }
+    //Verifica se o tiro está sendo feito enquanto o avião está em movimento ou "estacionário"
+    if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false } //Definir diferença máxima para considerar "estacionário"
+    else { m = true }
 
     updatePosition();
     updateAnimation(dist, quaternion);
@@ -205,18 +211,27 @@ function render() {
     updateAim();
     keyboardUpdate();
 
-    if(bullets.length != 0) {
+    //Realiza o movimento dos tiros e excluí da cena
     for (var i = 0; i < bullets.length; i++) {
       bullets[i].position.add(bullets[i].velocity) 
        
       if(!bullets[i].move) { bullets[i].translateZ(1) }
 
-      if (bullets[i].position.z > 1000) {
-         scene.remove(bullets[i]);
-         bullets.splice(i, 1);
+      raycaster.set(bullets[i].position, bullets[i].velocity);
+
+      var colisoes = raycaster.intersectObjects(turrets);
+    
+      if (colisoes.length > 0) {
+        var torre = colisoes[0].object;
+        // Mudar a opacidade da torre
+        torre.material.opacity = 0.5;
+      }
+
+      if (bullets[i].position.z > 80) { //Definir distância adequada!!
+         scene.remove(bullets[i]);  //Remove o tiro da cena
+         bullets.splice(i, 1);  //Remove do array
          i--;
        }
-      }
     }
   }
 }
