@@ -6,7 +6,7 @@ import {initRenderer,
       createGroundPlaneWired} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
-import { makeMap, updateMapQueue, speedController } from './map.js';
+import { makeMap } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
@@ -128,8 +128,8 @@ function updateAnimation(dist, quaternion)
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * ( dist / 20 ) ) / 4);
   aircraft.applyQuaternion(quaternion);
-  //quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 20 ) ) / 4);
-  //aircraft.applyQuaternion(quaternion);
+  // quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 40 ) ) / 4);
+  // aircraft.applyQuaternion(quaternion);
   
 }
 
@@ -150,7 +150,19 @@ scene.background = textureEquirec
 
 camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1);
 
+
+function createBBHelper(bb, color)
+{
+   // Create a bounding box helper
+   let helper = new THREE.Box3Helper( bb, color );
+   scene.add( helper );
+   return helper;
+}
+
+
 let isPaused = false; //Variável que define estado pausado/não pausado
+
+
 
 
 var bullets = [];
@@ -158,6 +170,11 @@ function fireBullet(){
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+  let bbBullet = new THREE.Box3().setFromObject(bullet);
+  let bbBulletHelper = createBBHelper(bbBullet, 'red');
+  bullet.add(bbBulletHelper);
+
+
   bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
   var direction = new THREE.Vector3();
   
@@ -177,13 +194,22 @@ function keyboardUpdate() {
   keyboard.update();
 
   //Velocidades
-  if( keyboard.down(1) ) { speedController(1) }
-  if( keyboard.down(2) ) { speedController(3) }
-  if( keyboard.down(3) ) { speedController(5) }
+  if( keyboard.down(1) ) { map.SPEED = 1 }
+  if( keyboard.down(2) ) { map.SPEED = 3 }
+  if( keyboard.down(3) ) { map.SPEED = 5 }
 
   //Pause
   if( keyboard.down('esc') ) { isPaused = !isPaused; document.body.style.cursor = 'auto'; } 
 }
+
+// var aux = [];
+// function detectarColisao() {
+
+//   for(let i = 0; i < aux.length; i++) {
+//     aux.push(map.turrets[i].mesh.position); 
+//   }
+// }
+
 
 render();
 function render() {
@@ -212,23 +238,22 @@ function render() {
     updateAim();
     keyboardUpdate();
 
+    //detectarColisao()
+
     //Realiza o movimento dos tiros e excluí da cena
     for (var i = 0; i < bullets.length; i++) {
       bullets[i].position.add(bullets[i].velocity) 
        
       if(!bullets[i].move) { bullets[i].translateZ(1) }
 
-      raycaster.set(bullets[i].position, bullets[i].velocity);
+      //console.log(bullets[i].position)
 
-      var colisoes = raycaster.intersectObjects(turrets);
-    
-      if (colisoes.length > 0) {
-        var torre = colisoes[0].object;
-        // Mudar a opacidade da torre
-        torre.material.opacity = 0.5;
-      }
+      if(Math.abs(map.turrets[i].mesh.position.x - bullets[i].position.x) < 10) {
+        if(Math.abs(bullets[i].position.y - map.turrets[i].mesh.position.y) < 10) {
+          if(Math.abs(map.turrets[i].mesh.position.z - bullets[i].position.z) < 10)
+      {isPaused = true,console.log("entrou");}}}
 
-      if (bullets[i].position.z > 80) { //Definir distância adequada!!
+      if (bullets[i].position.z > 300) { //Definir distância adequada!!
          scene.remove(bullets[i]);  //Remove o tiro da cena
          bullets.splice(i, 1);  //Remove do array
          i--;

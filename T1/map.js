@@ -19,7 +19,7 @@ export function makeMap() {
     NUM_MAX_MAP: 15,
     MAX_NON_VISIBLE_MAPS: 2,
     Z_DESTINATION: function () { return this.MAX_NON_VISIBLE_MAPS * this.MAP_Z * (-1) },
-    SPEED: 5,
+    SPEED: 1,
     MIN_NUM_TREES: 5,
     MAX_NUM_TREES: 6,
     FADE_START: 200,
@@ -196,7 +196,7 @@ export function makeMap() {
           node.material.opacity = 0;
         }
       });
-      map.turrets[i].mesh.scale.set(10, 10, 10);
+      map.turrets[i].mesh.scale.set(25, 25, 25);
       map.turrets[i].mesh.name = "TURRET";
       map.turrets[i].mesh.rotateY(Math.PI / 2);
       map.turretsLoaded[i] = true;
@@ -248,8 +248,4 @@ export function updateMapQueue(scene, mapQueue) {
     addMapInQueue(mapQueue);
     scene.add(mapQueue[mapQueue.length - 1]);
   }
-}
-
-export function speedController(velocity){
-  SPEED = velocity;
 }
