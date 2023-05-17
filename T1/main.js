@@ -199,7 +199,7 @@ function render() {
     //Render scene
     requestAnimationFrame(render);
     renderer.render(scene, camera) 
-    updateMapQueue(scene, mapQueue);
+    map.updateMapQueue(scene);
     aim.getWorldPosition(worldAimPos);
 
     //Verifica se o tiro está sendo feito enquanto o avião está em movimento ou "estacionário"
