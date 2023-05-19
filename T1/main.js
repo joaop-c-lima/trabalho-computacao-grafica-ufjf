@@ -35,29 +35,7 @@ aimPosMax = new THREE.Vector3(235, 200,255);
 light = initDefaultBasicLight(scene); 
 
 
-//Carrega o avião e o adiciona à cena
-loadGLBFile('./customObjects/', 'mig15', true, 2);
 
-function loadGLBFile(modelPath, modelName, visibility, desiredScale)
-{
-   var loader = new GLTFLoader( );
-   loader.load( modelPath + modelName + '.glb', function ( gltf ) {
-      aircraft = gltf.scene;
-      aircraft.name = modelName;
-      aircraft.visible = visibility;
-      aircraft.traverse( function ( child ) {
-         if ( child ) {
-            child.castShadow = true;
-         }
-      });
-      aircraft.traverse( function( node )
-      {
-         if( node.material ) node.material.side = THREE.DoubleSide;
-      });
-      aircraft.scale.set(desiredScale,desiredScale,desiredScale);
-      scene.add(aircraft)     
-    });
-}
 
 
 //Raycaster
@@ -70,7 +48,7 @@ raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
 raycasterPlaneMaterial.opacity = 0.5;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
-raycasterPlane.visible = false;
+raycasterPlane.visible = true;
 raycasterPlane.position.set(0,0,0);
 cameraHolder.add(raycasterPlane);
 raycasterPlane.translateZ((-cameraHolder.position.z) + 160)
@@ -91,9 +69,39 @@ function onMouseMove(event){
 
 }
 
+
+//Carrega o avião e o adiciona à cena
+loadGLBFile('./customObjects/', 'mig15', true, 2);
+
+function loadGLBFile(modelPath, modelName, visibility, desiredScale)
+{
+   var loader = new GLTFLoader( );
+   loader.load( modelPath + modelName + '.glb', function ( gltf ) {
+      aircraft = gltf.scene;
+      aircraft.name = modelName;
+      aircraft.visible = visibility;
+      aircraft.traverse( function ( child ) {
+         if ( child ) {
+            child.castShadow = true;
+         }
+      });
+      aircraft.traverse( function( node )
+      {
+         if( node.material ) node.material.side = THREE.DoubleSide;
+      });
+      aircraft.scale.set(desiredScale,desiredScale,desiredScale);
+      scene.add(aircraft)  
+      
+      var centroAviao = new THREE.SphereGeometry(1, 8, 8);
+var centroAviaoMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+var centro = new THREE.Mesh(centroAviao, centroAviaoMaterial);
+//aircraft.add(centro)
+    });
+}
+
 //Update Position
 function updatePosition() {
-  lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
+  lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, 0);
   if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
 }
 
@@ -164,31 +172,61 @@ let isPaused = false; //Variável que define estado pausado/não pausado
 
 
 
+// var vertices = [];
+
+// var geometryline = new THREE.BufferGeometry().setFromPoints(vertices);
+
+// vertices.push( worldAimPos );
+// vertices.push( aircraft.position );
+// scene.add(geometryline)
 
 var bullets = [];
 function fireBullet(){
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+  bullet.scale.set(1,1,1)
   let bbBullet = new THREE.Box3().setFromObject(bullet);
   let bbBulletHelper = createBBHelper(bbBullet, 'red');
   bullet.add(bbBulletHelper);
 
+  let mundoAir1 = new THREE.Vector3(0,0,0);
+  aircraft.getWorldPosition(mundoAir1);
 
-  bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
+
   var direction = new THREE.Vector3();
-  aircraft.rotateY(THREE.MathUtils.degToRad(-45));
-  aircraft.getWorldDirection(direction);
-  aircraft.rotateY(THREE.MathUtils.degToRad(45));
+  // aircraft.rotateY(THREE.MathUtils.degToRad(-45));
+  // aircraft.getWorldDirection(direction);
+  // aircraft.rotateY(THREE.MathUtils.degToRad(45));
+  let mundoAim = new THREE.Vector3(0,0,0);
+  aim.getWorldPosition(mundoAim)
+  let mundoAir = new THREE.Vector3(0,0,0);;
+  aircraft.getWorldPosition(mundoAir);
+  direction.subVectors( mundoAim,mundoAir ).normalize();
+  console.log("MIRA:", mundoAim.y)
+  console.log("AVIAO:", mundoAir.y)
   bullet.velocity = direction;
+  bullet.velocity.multiplyScalar(5);
   bullet.move = true;
-  direction.subVectors( worldAimPos, aircraft.position ).normalize();
+
   //if(m) { bullet.move = true; direction.subVectors( worldAimPos, aircraft.position ).normalize(); }
   //else { bullet.move = false }
 
-  scene.add(bullet);
+  aircraft.add(bullet);
+  bullet.position.set(0,0,0);
+  scene.attach(bullet)
+  //bullet.position.set(mundoAir1.x, mundoAir1.y, mundoAir1.z);
   bullets.push(bullet);
+
+
+
+
+
+
 }
+
+
+
 
 function bulletMov(){
   for (var i = 0; i < bullets.length; i++) {
@@ -235,6 +273,7 @@ function keyboardUpdate() {
 // }
 
 
+
 render();
 function render() {
   if(isPaused) {
@@ -244,13 +283,15 @@ function render() {
     
   } else {
     //Mouse invisibility
-    document.body.style.cursor = 'none';
+    document.body.style.cursor = 'auto';
 
     //Render scene
     requestAnimationFrame(render);
     renderer.render(scene, camera) 
     map.updateMapQueue(scene);
     aim.getWorldPosition(worldAimPos);
+
+
 
     //Verifica se o tiro está sendo feito enquanto o avião está em movimento ou "estacionário"
     //if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false } //Definir diferença máxima para considerar "estacionário"
