@@ -6,9 +6,10 @@ import {initRenderer,
       createGroundPlaneWired} from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
-import { makeMapQueue, updateMapQueue } from './map.js';
+import { makeMapQueue, updateMapQueue, speedController } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import KeyboardState from '../libs/util/KeyboardState.js';
 
 let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
  aimPosMin, aimPosMax, camDestination, dist, quaternion;;
@@ -16,7 +17,6 @@ let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-
 
 
 //Camera parameters
@@ -32,8 +32,7 @@ aimPosMax = new THREE.Vector3(250, 200,255);
 // Create a basic light to illuminate the scene
 light = initDefaultBasicLight(scene); 
 
-//Mouse invisibility
-document.body.style.cursor = 'none';
+
 
 loadGLBFile('./customObjects/', 'mig15', true, 2);
 
@@ -90,10 +89,8 @@ function onMouseMove(event){
 }
 //Update Position
 function updatePosition() {
-  
   lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, aircraft.position.z);
   if(lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
-  
 }
 
 //Lerp Config
@@ -149,16 +146,85 @@ scene.background = textureEquirec
 
 camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1);
 
+let isPaused = false;
+let keyboard = new KeyboardState();
+
+
+
+var bullets = [];
+function fireBullet(){
+    // Create a bullet object
+    var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+    var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+    bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
+    var direction = new THREE.Vector3();
+    direction.subVectors( worldAimPos, aircraft.position ).normalize();
+  
+    // Set the bullet velocity to be in the z direction
+    bullet.velocity = direction;
+    bullet.destiny = new THREE.Vector3(direction.x, direction.y, direction.z)
+    // Add the bullet to the scene and the bullets array
+    scene.add(bullet);
+    bullets.push(bullet);
+}
+
+document.addEventListener("mousedown", fireBullet);
+
+function keyboardUpdate() {
+
+  keyboard.update();
+
+  //Velocidades
+  if( keyboard.down(1) ) { speedController(1) }
+  if( keyboard.down(2) ) { speedController(3) }
+  if( keyboard.down(3) ) { speedController(5) }
+
+  //Pause
+  if( keyboard.down('esc') ) { isPaused = !isPaused; document.body.style.cursor = 'auto'; } 
+}
+
 render();
 function render() {
-  requestAnimationFrame(render);
-  renderer.render(scene, camera) // Render scene
-  updateMapQueue(scene, mapQueue);
-  aim.getWorldPosition(worldAimPos);
-  if (aircraft){
+  if(isPaused) {
+    keyboardUpdate(); 
+    requestAnimationFrame(render);
+    document.addEventListener('click', function() {isPaused = false});
+  } else {
+    //Mouse invisibility
+    document.body.style.cursor = 'none';
+
+    requestAnimationFrame(render);
+    renderer.render(scene, camera) // Render scene
+    updateMapQueue(scene, mapQueue);
+    aim.getWorldPosition(worldAimPos);
     updatePosition();
     updateAnimation(dist, quaternion);
+    updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
+    updateAim();
+    keyboardUpdate();
+
+    for (var i = 0; i < bullets.length; i++) {
+      //bullets[i].position.add(bullets[i].x, bullets[i].y, bullets[i].z);
+       bullets[i].position.add(bullets[i].destiny);
+       //console.log(bullets[i].position);
+       if (bullets[i].position.z > 1000) {
+         scene.remove(bullets[i]);
+         bullets.splice(i, 1);
+         i--;
+       }
+      }
+
+
+    // for (var i = 0; i < bullets.length; i++) {
+    //   bullets[i].position.add(bullets[i].velocity);
+      
+    //   // Remove bullets that are offscreen
+    //   if (bullets[i].position.z < -1) {
+    //     scene.remove(bullets[i]);
+    //     bullets.splice(i, 1);
+    //     i--;
+    //   }
+    // }
   }
-  updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
-  updateAim();
 }

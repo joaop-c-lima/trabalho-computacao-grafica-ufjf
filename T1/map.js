@@ -9,7 +9,7 @@ const MAP_Z = 10.0;
 const NUM_MAX_MAP = 100;
 const MAX_NON_VISIBLE_MAPS = 5;
 const Z_DESTINATION = MAX_NON_VISIBLE_MAPS * MAP_Z * (-1);
-const SPEED = 1.0;
+var SPEED = 1.0;
 const MIN_NUM_TREES = 2;
 const MAX_NUM_TREES = 3;
 const FADE_START = 200;
@@ -89,4 +89,8 @@ export function updateMapQueue(scene, mapQueue) {
     addMapInQueue(mapQueue);
     scene.add(mapQueue[mapQueue.length - 1]);
   }
+}
+
+export function speedController(velocity){
+  SPEED = velocity;
 }
