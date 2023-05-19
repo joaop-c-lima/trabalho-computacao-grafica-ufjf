@@ -177,15 +177,39 @@ function fireBullet(){
 
   bullet.position.set(aircraft.position.x+2.5, aircraft.position.y+2.5, aircraft.position.z+12);
   var direction = new THREE.Vector3();
-  
+  aircraft.rotateY(THREE.MathUtils.degToRad(-45));
+  aircraft.getWorldDirection(direction);
+  aircraft.rotateY(THREE.MathUtils.degToRad(45));
   bullet.velocity = direction;
-  if(m) { bullet.move = true; direction.subVectors( worldAimPos, aircraft.position ).normalize(); }
-  else { bullet.move = false }
+  bullet.move = true;
+  direction.subVectors( worldAimPos, aircraft.position ).normalize();
+  //if(m) { bullet.move = true; direction.subVectors( worldAimPos, aircraft.position ).normalize(); }
+  //else { bullet.move = false }
 
   scene.add(bullet);
   bullets.push(bullet);
 }
 
+function bulletMov(){
+  for (var i = 0; i < bullets.length; i++) {
+    bullets[i].position.add(bullets[i].velocity) 
+     
+    //if(!bullets[i].move) { bullets[i].translateZ(1) }
+
+    //console.log(bullets[i].position)
+
+    /*if(Math.abs(map.turrets[i].mesh.position.x - bullets[i].position.x) < 10) {
+      if(Math.abs(bullets[i].position.y - map.turrets[i].mesh.position.y) < 10) {
+        if(Math.abs(map.turrets[i].mesh.position.z - bullets[i].position.z) < 10)
+    {isPaused = true,console.log("entrou");}}}
+
+    if (bullets[i].position.z > 300) { //Definir distância adequada!!
+       scene.remove(bullets[i]);  //Remove o tiro da cena
+       bullets.splice(i, 1);  //Remove do array
+       i--;
+     }*/
+  }
+}
 //Listener do Tiro (Botão esquerdo do mouse)
 document.addEventListener("mousedown", fireBullet);
 
@@ -216,7 +240,7 @@ function render() {
   if(isPaused) {
     keyboardUpdate(); 
     requestAnimationFrame(render);
-    document.addEventListener('click', function() {isPaused = false});
+    //document.addEventListener('click', function() {isPaused = false});
     
   } else {
     //Mouse invisibility
@@ -229,8 +253,8 @@ function render() {
     aim.getWorldPosition(worldAimPos);
 
     //Verifica se o tiro está sendo feito enquanto o avião está em movimento ou "estacionário"
-    if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false } //Definir diferença máxima para considerar "estacionário"
-    else { m = true }
+    //if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false } //Definir diferença máxima para considerar "estacionário"
+    //else { m = true }
 
     updatePosition();
     updateAnimation(dist, quaternion);
@@ -241,23 +265,6 @@ function render() {
     //detectarColisao()
 
     //Realiza o movimento dos tiros e excluí da cena
-    for (var i = 0; i < bullets.length; i++) {
-      bullets[i].position.add(bullets[i].velocity) 
-       
-      if(!bullets[i].move) { bullets[i].translateZ(1) }
-
-      //console.log(bullets[i].position)
-
-      if(Math.abs(map.turrets[i].mesh.position.x - bullets[i].position.x) < 10) {
-        if(Math.abs(bullets[i].position.y - map.turrets[i].mesh.position.y) < 10) {
-          if(Math.abs(map.turrets[i].mesh.position.z - bullets[i].position.z) < 10)
-      {isPaused = true,console.log("entrou");}}}
-
-      if (bullets[i].position.z > 300) { //Definir distância adequada!!
-         scene.remove(bullets[i]);  //Remove o tiro da cena
-         bullets.splice(i, 1);  //Remove do array
-         i--;
-       }
-    }
+    bulletMov();
   }
 }
