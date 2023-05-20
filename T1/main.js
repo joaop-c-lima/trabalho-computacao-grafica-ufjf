@@ -173,8 +173,6 @@ function fireBullet() {
   let mundoAir = new THREE.Vector3(0, 0, 0);;
   aircraft.getWorldPosition(mundoAir);
   direction.subVectors(mundoAim, mundoAir).normalize();
-  console.log("MIRA:", mundoAim.y)
-  console.log("AVIAO:", mundoAir.y)
   bullet.velocity = direction;
   bullet.velocity.multiplyScalar(5);
   bullet.move = true;
@@ -188,18 +186,21 @@ function fireBullet() {
 var turretsPos = [];
 var turretV = new THREE.Vector3();
 
+function euclideanDistance(x1, y1, z1, x2, y2, z2) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
+}
+
 function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
+    bullets[i].position.add(bullets[i].velocity)
     for (var j = 0; j < map.MAX_TURRET; j++) {
-      bullets[i].position.add(bullets[i].velocity)
-      if(!map.turretsDying[j]){
+      if (!map.turretsDying[j]) {
         turretsPos.push(map.turrets[j].mesh.getWorldPosition(turretV))
-
-        if (Math.abs(bullets[i].position.x - turretsPos[j].x < 15) && Math.abs(bullets[i].position.y - turretsPos[j].y < 20) && Math.abs(bullets[i].position.z - turretsPos[j].z < 15)) {
-          console.log("OK")
+        if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretsPos[j].x, turretsPos[j].y, turretsPos[j].z) < 50) {
           map.turretsDying[j] = true;
         }
-    }}
+      }
+    }
 
     if (bullets[i].position.z > 300) { //Definir distância adequada!!
       scene.remove(bullets[i]);  //Remove o tiro da cena

@@ -111,10 +111,9 @@ export function makeMap() {
             })
           } while (collision);
           map.add(this.turrets[i].mesh);
+          this.turrets[i].mesh.visible = true;
           this.turretsVisible[i] = true;
-          this.turretsDying[i] = false;
           this.turrets[i].mesh.position.copy(coordinates);
-          console.log("Moveu")
           this.turrets[i].life = this.TURRET_MAX_HP;
           mapPart.turret = i;
           break;
@@ -135,7 +134,9 @@ export function makeMap() {
     // Remove map from queue and scene
     removeMap: function (scene) {
       this.disposeAll(this.queue[0].map, scene)
-      this.turretsVisible[this.queue[0].turret] = false;
+      if (this.queue[0].turret != -1) {
+        this.turretsVisible[this.queue[0].turret] = false;
+      }
       this.queue.shift();
     },
     // Function that sets the opacity of an object given the Z of its position
@@ -163,6 +164,27 @@ export function makeMap() {
     },
     // Updates the queue of maps by removing the first one from the queue and creating a new map at the end
     updateMapQueue(scene) {
+      for (let i = 0; i < this.MAX_TURRET; i++) {
+        if (this.turretsDying[i]) {
+          /*dead = false;
+          this.turrets[i].mesh.traverse(function (node) {
+            if (node.material) {
+              node.material.opacity -= 1;
+              dead = node.material.opacity <= 0;
+            }
+          });*/
+          console.log("DEAD");
+          this.turretsDying[i] = false;
+          this.turretsVisible[i] = false;
+          this.turrets[i].mesh.visible = false;
+          for (let j = 0; j < this.NUM_MAX_MAP; j++) {
+            if (this.queue[j].turret == i) {
+              this.queue[j].turret = -1;
+            }
+          }
+
+        }
+      }
       this.queue.forEach(element => {
         element.map.position.z -= this.SPEED;
         if (element.map.position.z >= this.FADE_START - this.SPEED) {
@@ -174,28 +196,13 @@ export function makeMap() {
         this.addMapInQueue();
         scene.add(this.queue[this.queue.length - 1].map);
       }
-      let opacityAux;
-      for (let i = 0; i < this.turretsDying.length; i++) {
-        if (this.turretsDying[i]) {
-          console.log('teste')
-          this.turrets[i].mesh.traverse(function (node) {
-            if (node.material) {
-              node.material.opacity -= 1;
-              opacityAux = node.material.opacity;
-            }
-          });
-          if (opacityAux <= 0) {
-            this.turretsVisible[i] = false;
-            this.turretsDying[i] = false;
-          }
-        }
-      }
     }
   };
   var loader = new GLTFLoader();
   for (let i = 0; i <= map.MAX_TURRET; i++) {
     map.turretsLoaded.push(false);
     map.turretsVisible.push(false);
+    map.turretsDying.push(false);
     map.turrets.push({
       mesh: null,
       life: 5,
@@ -222,7 +229,6 @@ export function makeMap() {
       map.turrets[i].mesh.name = "TURRET";
       map.turrets[i].mesh.rotateY(Math.PI / 2);
       map.turretsLoaded[i] = true;
-      map.turretsDying[i] = false;
     })
 
   }
