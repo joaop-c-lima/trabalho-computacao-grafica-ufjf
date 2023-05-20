@@ -142,8 +142,7 @@ textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
 textureEquirec.encoding = THREE.sRGBEncoding;
 scene.background = textureEquirec
 
-camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1);
-
+camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1); // Inicializa a camera sempre virada para frente
 
 let isPaused = false; //Variável que define estado pausado/não pausado
 
@@ -176,7 +175,6 @@ var turretV;
 function euclideanDistance(x1, y1, z1, x2, y2, z2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
 }
-
 
 function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
