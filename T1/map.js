@@ -16,7 +16,7 @@ export function makeMap() {
     MAP_Z: 100.0,
     WALL_HEIGHT: 100.0,
     WALL_COLOR: "#808487",
-    NUM_MAX_MAP: 15,
+    NUM_MAX_MAP: 10,
     MAX_NON_VISIBLE_MAPS: 2,
     Z_DESTINATION: function () { return this.MAX_NON_VISIBLE_MAPS * this.MAP_Z * (-1) },
     SPEED: 1,

@@ -66,7 +66,7 @@ function onMouseMove(event) {
   point = intersects[0].point;
   point.clamp(aimPosMin, aimPosMax);
   scene.attach(aim);
-  aim.position.set(point.x, point.y, 220);
+  aim.position.set(point.x, point.y, 160);
   cameraHolder.attach(aim);
 
 }
@@ -203,7 +203,7 @@ function bulletMov() {
       }
     }
 
-    if (bullets[i].position.z > 300) { //Definir distância adequada!!
+    if (bullets[i].position.z > map.FADE_END() || bullets[i].position.y < map.MAP_Y/2 || Math.abs(bullets[i].position.x) > map.MAP_X/2) {
       scene.remove(bullets[i]);  //Remove o tiro da cena
       bullets.splice(i, 1);  //Remove do array
       i--;
@@ -212,7 +212,7 @@ function bulletMov() {
 }
 
 //Listener do Tiro (Botão esquerdo do mouse)
-document.addEventListener("mousedown", fireBullet);
+document.addEventListener("click", fireBullet);
 
 function keyboardUpdate() {
 
@@ -236,14 +236,14 @@ function render() {
     keyboardUpdate();
     requestAnimationFrame(render);
     if (fireListener) {
-      document.removeEventListener("mousedown", fireBullet);
+      document.removeEventListener("click", fireBullet);
       document.addEventListener('click', function () { isPaused = false });
       fireListener = false;
     }
 
   } else {
     if (!fireListener) {
-      document.addEventListener("mousedown", fireBullet);
+      document.addEventListener("click", fireBullet);
       //Mouse invisibility
       document.body.style.cursor = 'none';
       fireListener = true;
