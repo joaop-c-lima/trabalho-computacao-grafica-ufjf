@@ -8,8 +8,8 @@ export function createCamera(){
 
 export function updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, destination){
     
-    if (aim.position.x>-60 && aim.position.x<60){worldAimPos.x = cameraHolder.position.x}
-    if (aim.position.y>-25 && aim.position.y<25){ worldAimPos.y = cameraHolder.position.y}
+    if (aim.position.x>-80 && aim.position.x<80){worldAimPos.x = cameraHolder.position.x}
+    if (aim.position.y>-45 && aim.position.y<45){ worldAimPos.y = cameraHolder.position.y}
     destination = new THREE.Vector3(worldAimPos.x, worldAimPos.y, -60);
     lerpCameraConfig = {
         destination: destination,

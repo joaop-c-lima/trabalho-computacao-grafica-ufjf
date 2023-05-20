@@ -48,7 +48,7 @@ raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
 raycasterPlaneMaterial.opacity = 0.5;
 raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
-raycasterPlane.visible = true;
+raycasterPlane.visible = false;
 raycasterPlane.position.set(0,0,0);
 cameraHolder.add(raycasterPlane);
 raycasterPlane.translateZ((-cameraHolder.position.z) + 160)
@@ -71,7 +71,7 @@ function onMouseMove(event){
 
 
 //Carrega o avião e o adiciona à cena
-loadGLBFile('./customObjects/', 'mig15', true, 2);
+loadGLBFile('./customObjects/', 'aviao', true, 2);
 
 function loadGLBFile(modelPath, modelName, visibility, desiredScale)
 {
@@ -129,7 +129,6 @@ function updateAnimation(dist, quaternion)
 {
   
   aircraft.lookAt(worldAimPos.x, worldAimPos.y, worldAimPos.z);
-  aircraft.rotateY(THREE.MathUtils.degToRad(45));
   dist = aircraft.position.x - worldAimPos.x;
   if(dist<-30) {dist = -30};
   if(dist>30) {dist = 30}
