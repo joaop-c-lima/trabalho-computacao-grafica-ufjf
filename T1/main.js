@@ -194,9 +194,10 @@ function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
     bullets[i].position.add(bullets[i].velocity)
     for (var j = 0; j < map.MAX_TURRET; j++) {
-      if (!map.turretsDying[j]) {
-        turretsPos.push(map.turrets[j].mesh.getWorldPosition(turretV))
-        if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretsPos[j].x, turretsPos[j].y, turretsPos[j].z) < 50) {
+      if (!map.turretsDying[j] && map.turretsVisible[j] ) {
+        turretV = new THREE.Vector3();
+        map.turrets[j].mesh.getWorldPosition(turretV)
+        if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < 50) {
           map.turretsDying[j] = true;
         }
       }

@@ -164,25 +164,26 @@ export function makeMap() {
     },
     // Updates the queue of maps by removing the first one from the queue and creating a new map at the end
     updateMapQueue(scene) {
+      let dead;
       for (let i = 0; i < this.MAX_TURRET; i++) {
         if (this.turretsDying[i]) {
-          /*dead = false;
+          dead = false;
           this.turrets[i].mesh.traverse(function (node) {
             if (node.material) {
-              node.material.opacity -= 1;
+              node.material.opacity -= 0.05;
               dead = node.material.opacity <= 0;
             }
-          });*/
-          console.log("DEAD");
-          this.turretsDying[i] = false;
-          this.turretsVisible[i] = false;
-          this.turrets[i].mesh.visible = false;
-          for (let j = 0; j < this.NUM_MAX_MAP; j++) {
-            if (this.queue[j].turret == i) {
-              this.queue[j].turret = -1;
+          });
+          if (dead) {
+            this.turretsDying[i] = false;
+            this.turretsVisible[i] = false;
+            this.turrets[i].mesh.visible = false;
+            for (let j = 0; j < this.NUM_MAX_MAP; j++) {
+              if (this.queue[j].turret == i) {
+                this.queue[j].turret = -1;
+              }
             }
           }
-
         }
       }
       this.queue.forEach(element => {
