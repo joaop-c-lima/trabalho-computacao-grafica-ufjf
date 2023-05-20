@@ -32,6 +32,8 @@ export function makeMap() {
     turrets: [],
     turretsLoaded: [],
     turretsVisible: [],
+    turretsBB: [],
+    turretsDying: [],
     // Creates and places a map part at the end of the queue
     addMapInQueue: function () {
       this.queue.push(this.makeMap());
@@ -95,7 +97,7 @@ export function makeMap() {
       map.add(leftWall);
       leftWall.position.set((0.5 * this.MAP_X) + this.MAP_Y, (this.WALL_HEIGHT + this.MAP_Y) / 2, 0)
       for (let i = 0; i < this.MAX_TURRET; i++) {
-        if (this.turretsLoaded[i] && !this.turretsVisible[i] && getRndInteger(0, 100) <= this.TURRET_SPAWN_CHANCE) {
+        if (this.turretsLoaded[i] && !this.turretsVisible[i] && getRndInteger(0, 100) <= this.TURRET_SPAWN_CHANCE && !this.turretsDying[i]) {
           do {
             coordinates = new THREE.Vector3(getRndInteger(0, (this.MAP_X - this.DISTANCE_TOLERANCE)) - ((this.MAP_X - this.DISTANCE_TOLERANCE) / 2),
               1,
@@ -110,7 +112,9 @@ export function makeMap() {
           } while (collision);
           map.add(this.turrets[i].mesh);
           this.turretsVisible[i] = true;
+          this.turretsDying[i] = false;
           this.turrets[i].mesh.position.copy(coordinates);
+          console.log("Moveu")
           this.turrets[i].life = this.TURRET_MAX_HP;
           mapPart.turret = i;
           break;
@@ -122,7 +126,7 @@ export function makeMap() {
     disposeAll: function (element, scene) {
       element.children.forEach((child) => {
         if (child.name != "TURRET")
-          this.disposeAll(child,scene);
+          this.disposeAll(child, scene);
       });
       element.geometry.dispose();
       element.material.dispose();
@@ -170,6 +174,22 @@ export function makeMap() {
         this.addMapInQueue();
         scene.add(this.queue[this.queue.length - 1].map);
       }
+      let opacityAux;
+      for (let i = 0; i < this.turretsDying.length; i++) {
+        if (this.turretsDying[i]) {
+          console.log('teste')
+          this.turrets[i].mesh.traverse(function (node) {
+            if (node.material) {
+              node.material.opacity -= 1;
+              opacityAux = node.material.opacity;
+            }
+          });
+          if (opacityAux <= 0) {
+            this.turretsVisible[i] = false;
+            this.turretsDying[i] = false;
+          }
+        }
+      }
     }
   };
   var loader = new GLTFLoader();
@@ -178,8 +198,10 @@ export function makeMap() {
     map.turretsVisible.push(false);
     map.turrets.push({
       mesh: null,
-      life: 5
+      life: 5,
     })
+
+
   }
   for (let i = 0; i <= map.MAX_TURRET; i++) {
     loader.load("./turret.glb", function (gltf) {
@@ -200,6 +222,7 @@ export function makeMap() {
       map.turrets[i].mesh.name = "TURRET";
       map.turrets[i].mesh.rotateY(Math.PI / 2);
       map.turretsLoaded[i] = true;
+      map.turretsDying[i] = false;
     })
 
   }
@@ -208,44 +231,4 @@ export function makeMap() {
     map.addMapInQueue();
   }
   return map;
-}
-
-// Remove map from queue and scene
-export function removeMap(scene, mapQueue) {
-  mapQueue[0].geometry.dispose();
-  mapQueue[0].material.dispose();
-  scene.remove(mapQueue[0]);
-  mapQueue.shift();
-}
-
-// Function that sets the opacity of an object given the Z of its position
-export function opacityLinearFunction(elementZ) {
-  if (elementZ < FADE_START) {
-    return 1.0;
-  } else {
-    return (elementZ * (-1 / (FADE_END - FADE_START))) + (1 + (FADE_START / (FADE_END - FADE_START)));
-  }
-}
-
-// Sets the opacity of a mesh and its children
-export function changeOpacity(element, opacity) {
-  element.children.forEach((child) => {
-    changeOpacity(child, opacity);
-  });
-  element.material.opacity = opacity;
-}
-
-// Updates the queue of maps by removing the first one from the queue and creating a new map at the end
-export function updateMapQueue(scene, mapQueue) {
-  mapQueue.forEach(element => {
-    element.position.z -= SPEED;
-    if (element.position.z >= FADE_START) {
-      changeOpacity(element, opacityLinearFunction(element.position.z));
-    }
-  });
-  if (mapQueue[0].position.z <= Z_DESTINATION) {
-    removeMap(scene, mapQueue)
-    addMapInQueue(mapQueue);
-    scene.add(mapQueue[mapQueue.length - 1]);
-  }
 }
