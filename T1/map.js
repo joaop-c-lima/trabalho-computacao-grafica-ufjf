@@ -28,6 +28,7 @@ export function makeMap() {
     DISTANCE_TOLERANCE: 20,
     TURRET_SPAWN_CHANCE: 30,
     TURRET_MAX_HP: 5,
+    DEATH_FADE_SPEED: 0.05,
     queue: [],
     turrets: [],
     turretsLoaded: [],
@@ -37,19 +38,22 @@ export function makeMap() {
     // Creates and places a map part at the end of the queue
     addMapInQueue: function () {
       this.queue.push(this.makeMap());
-      this.queue[this.queue.length - 1].map.material.opacity = this.opacityLinearFunction(this.queue[this.queue.length - 2].map.position.z + this.MAP_Z);
       this.queue[this.queue.length - 1].map.position.set(0, 0, this.queue[this.queue.length - 2].map.position.z + this.MAP_Z);
-      this.changeOpacity(this.queue[this.queue.length - 1].map);
+      this.changeOpacity(this.queue[this.queue.length - 1].map, this.opacityLinearFunction(this.queue[this.queue.length - 2].map.position.z + this.MAP_Z));
+    },
+    makeEdges: function(mesh){
+      let edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
+      let edgesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+      let edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+      edges.material.transparent = true;
+      mesh.add(edges);
     },
     makeWall: function () {
       let wallMaterial = new THREE.MeshLambertMaterial({ color: this.WALL_COLOR });
       wallMaterial.transparent = true;
       let wallGeometry = new THREE.BoxGeometry(this.MAP_Y, this.WALL_HEIGHT, this.MAP_Z);
       let wall = new THREE.Mesh(wallGeometry, wallMaterial);
-      let edges = new THREE.EdgesGeometry(wallGeometry);
-      let line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
-      line.material.transparent = true;
-      wall.add(line);
+      this.makeEdges(wall);
       wall.receiveShadow = true;
       wall.castShadow = true;
       return wall;
@@ -66,10 +70,7 @@ export function makeMap() {
       let map = new THREE.Mesh(mapGeometry, mapMaterial);
       map.position.set(0.0, 0.0, 0.0);
       map.receiveShadow = true;
-      let edges = new THREE.EdgesGeometry(mapGeometry);
-      let line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
-      line.material.transparent = true;
-      map.add(line);
+      this.makeEdges(map);
       let trees = [];
       let coordinates;
       let collision;
@@ -165,12 +166,12 @@ export function makeMap() {
     // Updates the queue of maps by removing the first one from the queue and creating a new map at the end
     updateMapQueue(scene) {
       let dead;
+      let death_fade_speed = this.DEATH_FADE_SPEED;
       for (let i = 0; i < this.MAX_TURRET; i++) {
         if (this.turretsDying[i]) {
-          dead = false;
           this.turrets[i].mesh.traverse(function (node) {
             if (node.material) {
-              node.material.opacity -= 0.05;
+              node.material.opacity -= death_fade_speed;
               dead = node.material.opacity <= 0;
             }
           });
@@ -226,7 +227,7 @@ export function makeMap() {
           node.material.opacity = 0;
         }
       });
-      map.turrets[i].mesh.scale.set(25, 25, 25);
+      map.turrets[i].mesh.scale.set(10, 10, 10);
       map.turrets[i].mesh.name = "TURRET";
       map.turrets[i].mesh.rotateY(Math.PI / 2);
       map.turretsLoaded[i] = true;

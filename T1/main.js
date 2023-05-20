@@ -66,7 +66,7 @@ function onMouseMove(event) {
   point = intersects[0].point;
   point.clamp(aimPosMin, aimPosMax);
   scene.attach(aim);
-  aim.position.set(point.x, point.y, 160);
+  aim.position.set(point.x, point.y, 220);
   cameraHolder.attach(aim);
 
 }
@@ -197,7 +197,7 @@ function bulletMov() {
       if (!map.turretsDying[j] && map.turretsVisible[j] ) {
         turretV = new THREE.Vector3();
         map.turrets[j].mesh.getWorldPosition(turretV)
-        if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < 50) {
+        if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
           map.turretsDying[j] = true;
         }
       }
