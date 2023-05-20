@@ -41,6 +41,7 @@ export function makeMap() {
       this.queue[this.queue.length - 1].map.position.set(0, 0, this.queue[this.queue.length - 2].map.position.z + this.MAP_Z);
       this.changeOpacity(this.queue[this.queue.length - 1].map, this.opacityLinearFunction(this.queue[this.queue.length - 2].map.position.z + this.MAP_Z));
     },
+    // Creates the edges lines for a mesh
     makeEdges: function(mesh){
       let edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
       let edgesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
@@ -48,6 +49,7 @@ export function makeMap() {
       edges.material.transparent = true;
       mesh.add(edges);
     },
+    // Creates a wall
     makeWall: function () {
       let wallMaterial = new THREE.MeshLambertMaterial({ color: this.WALL_COLOR });
       wallMaterial.transparent = true;
@@ -58,7 +60,7 @@ export function makeMap() {
       wall.castShadow = true;
       return wall;
     },
-    // Creates the map along with randomly placed trees
+    // Creates the map along with randomly placed trees and a unique randomly placed turret
     makeMap: function () {
       let mapPart = {
         map: null,
@@ -123,6 +125,7 @@ export function makeMap() {
       mapPart.map = map;
       return mapPart;
     },
+    //Dispose a mesh and their children
     disposeAll: function (element, scene) {
       element.children.forEach((child) => {
         if (child.name != "TURRET")
