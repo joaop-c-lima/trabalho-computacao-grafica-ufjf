@@ -44,7 +44,7 @@ light = initDefaultBasicLight(scene);
 let raycaster = new THREE.Raycaster();
 let raycasterPlane, raycasterPlaneGeometry, raycasterPlaneMaterial, objects;
 objects = [];
-raycasterPlaneGeometry = new THREE.PlaneGeometry(930, 440, 20, 20);
+raycasterPlaneGeometry = new THREE.PlaneGeometry(1200, 440, 20, 20);
 raycasterPlaneMaterial = new THREE.MeshLambertMaterial({ color: "rgb(255,0,0)" });
 raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
