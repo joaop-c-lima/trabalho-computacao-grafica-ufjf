@@ -224,6 +224,8 @@ function render() {
     keyboardUpdate();
     requestAnimationFrame(render);
     if (fireListener) {
+      aim.visible = false;
+      renderer.render(scene, camera);
       document.removeEventListener("click", fireBullet);
       document.addEventListener('click', function () { isPaused = false });
       fireListener = false; // Desativa os disparos
@@ -231,6 +233,7 @@ function render() {
 
   } else {
     if (!fireListener) {
+      aim.visible = true;
       document.addEventListener("click", fireBullet);
       //Mouse invisibility
       document.body.style.cursor = 'none';
