@@ -2,9 +2,7 @@ import * as THREE from 'three';
 import {
   initRenderer,
   initDefaultBasicLight,
-  onWindowResize,
-  degreesToRadians,
-  createGroundPlaneWired
+  onWindowResize
 } from "../libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
@@ -13,15 +11,14 @@ import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
 
-let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, camPosMax,
+let scene, renderer, camera, light, lerpCameraConfig,
   aimPosMin, aimPosMax, camDestination, dist, quaternion;
 let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
-let fireListener = true;
+let fireListener = true;      // Evitar que o click para sair do pause chame firebullet()
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 let keyboard = new KeyboardState(); //Variável para o teclado
-
 
 //Camera parameters
 camera = createCamera();
@@ -35,10 +32,6 @@ aimPosMax = new THREE.Vector3(235, 200, 255);
 
 // Create a basic light to illuminate the scene
 light = initDefaultBasicLight(scene);
-
-
-
-
 
 //Raycaster
 let raycaster = new THREE.Raycaster();
@@ -71,7 +64,6 @@ function onMouseMove(event) {
 
 }
 
-
 //Carrega o avião e o adiciona à cena
 loadGLBFile('./customObjects/', 'aviao', true, 2);
 
@@ -91,11 +83,6 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
     });
     aircraft.scale.set(desiredScale, desiredScale, desiredScale);
     scene.add(aircraft)
-
-    var centroAviao = new THREE.SphereGeometry(1, 8, 8);
-    var centroAviaoMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    var centro = new THREE.Mesh(centroAviao, centroAviaoMaterial);
-    //aircraft.add(centro)
   });
 }
 
@@ -133,20 +120,20 @@ function updateAnimation(dist, quaternion) {
   quaternion = new THREE.Quaternion();
   quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 20)) / 4);
   aircraft.applyQuaternion(quaternion);
-  // quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (-Math.PI * ( dist / 40 ) ) / 4);
-  // aircraft.applyQuaternion(quaternion);
-
 }
 
 // Listen window size changes
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
+// Cria o mapa e ativa a fila
 let map = makeMap();
 map.queue.forEach(element => scene.add(element.map));
 
+// Cria o sol
 let sun = makeSun();
 scene.add(sun)
 
+// Carrega o céu
 const textureLoader = new THREE.TextureLoader();
 let textureEquirec = textureLoader.load('./sky.jpeg');
 textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
@@ -155,50 +142,51 @@ scene.background = textureEquirec
 
 camera.lookAt(cameraHolder.position.x, cameraHolder.position.y, cameraHolder.position.z + 1);
 
+
 let isPaused = false; //Variável que define estado pausado/não pausado
 
+// Array para armazenar os tiros disparados
 var bullets = [];
 
+// Função que realiza os tiros
 function fireBullet() {
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
 
-  let mundoAir1 = new THREE.Vector3(0, 0, 0);
-  aircraft.getWorldPosition(mundoAir1);
-
   var direction = new THREE.Vector3();
-  let mundoAim = new THREE.Vector3(0, 0, 0);
-  aim.getWorldPosition(mundoAim)
-  let mundoAir = new THREE.Vector3(0, 0, 0);;
-  aircraft.getWorldPosition(mundoAir);
-  direction.subVectors(mundoAim, mundoAir).normalize();
+  let posMundoAim = new THREE.Vector3(0, 0, 0);
+  aim.getWorldPosition(posMundoAim)   // Pega posição global da mira
+  let posMundoAircraft = new THREE.Vector3(0, 0, 0);;
+  aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
+  direction.subVectors(posMundoAim, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
   bullet.velocity = direction;
-  bullet.velocity.multiplyScalar(5);
-  bullet.move = true;
+  bullet.velocity.multiplyScalar(5); // Muda velocidade do disparo
 
-  aircraft.add(bullet);
+  aircraft.add(bullet); // Faz o disparo sair do avião
   bullet.position.set(0, 0, 0);
-  scene.attach(bullet)
-  bullets.push(bullet);
+  scene.attach(bullet)  // Adiciona o disparo à cena
+  bullets.push(bullet); // Adiciona o disparo no array
 }
 
-var turretsPos = [];
-var turretV = new THREE.Vector3();
+var turretV; 
 
 function euclideanDistance(x1, y1, z1, x2, y2, z2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
 }
 
+
 function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
-    bullets[i].position.add(bullets[i].velocity)
+    bullets[i].position.add(bullets[i].velocity) // Atualiza o movimento dos disparos
     for (var j = 0; j < map.MAX_TURRET; j++) {
       if (!map.turretsDying[j] && map.turretsVisible[j] ) {
         turretV = new THREE.Vector3();
-        map.turrets[j].mesh.getWorldPosition(turretV)
+        map.turrets[j].mesh.getWorldPosition(turretV) // Armazena a posição global das torretas
+
+        // Verifica se a torreta foi atingida
         if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
-          map.turretsDying[j] = true;
+          map.turretsDying[j] = true; // Se atingida, status passa sendo destruída
         }
       }
     }
@@ -232,13 +220,13 @@ document.body.style.cursor = 'none';
 
 render();
 function render() {
-  if (isPaused) {
+  if (isPaused) { // Pause Ativo
     keyboardUpdate();
     requestAnimationFrame(render);
     if (fireListener) {
       document.removeEventListener("click", fireBullet);
       document.addEventListener('click', function () { isPaused = false });
-      fireListener = false;
+      fireListener = false; // Desativa os disparos
     }
 
   } else {
@@ -246,23 +234,22 @@ function render() {
       document.addEventListener("click", fireBullet);
       //Mouse invisibility
       document.body.style.cursor = 'none';
-      fireListener = true;
+      fireListener = true; // Ativa os disparos
     }
-
 
     //Render scene
     requestAnimationFrame(render);
     renderer.render(scene, camera)
-    map.updateMapQueue(scene);
-    aim.getWorldPosition(worldAimPos);
+    map.updateMapQueue(scene); // Atualiza a fila de mapas
+    aim.getWorldPosition(worldAimPos); // Atualiza a posição global da mira
 
     if (aircraft) {
-      updatePosition();
-      updateAnimation(dist, quaternion);
+      updatePosition(); // Atualiza posição do avião
+      updateAnimation(dist, quaternion); // Realiza animações de movimento do avião
     }
-    updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
-    updateAim();
-    keyboardUpdate();
+    updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
+    updateAim(); // Atualiza mira
+    keyboardUpdate(); // Atualiza teclado
 
     //Realiza o movimento dos tiros e excluí da cena
     bulletMov();
