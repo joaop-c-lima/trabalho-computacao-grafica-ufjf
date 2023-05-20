@@ -31,7 +31,9 @@ aimPosMin = new THREE.Vector3(-235, 10, -255);
 aimPosMax = new THREE.Vector3(235, 200, 255);
 
 // Create a basic light to illuminate the scene
-light = initDefaultBasicLight(scene);
+let ambientColor = "rgb(150,150,150)";
+let ambientLight = new THREE.AmbientLight(ambientColor);
+scene.add(ambientLight);
 
 //Raycaster
 let raycaster = new THREE.Raycaster();
