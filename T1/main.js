@@ -15,9 +15,9 @@ let scene, renderer, camera, light, aircraftPos, lerpCameraConfig, camPosMin, ca
  aimPosMin, aimPosMax, camDestination, dist, quaternion;
 let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
+let fireListener = true;
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-let m = false; //Variável que indicará se o tiro foi feito em momento "estacionário" ou transitório
 let keyboard = new KeyboardState(); //Variável para o teclado
 
 
@@ -263,6 +263,9 @@ function keyboardUpdate() {
   if( keyboard.down('esc') ) { isPaused = !isPaused; document.body.style.cursor = 'auto'; } 
 }
 
+//Mouse invisibility
+document.body.style.cursor = 'none';
+
 // var aux = [];
 // function detectarColisao() {
 
@@ -278,11 +281,20 @@ function render() {
   if(isPaused) {
     keyboardUpdate(); 
     requestAnimationFrame(render);
-    //document.addEventListener('click', function() {isPaused = false});
+    if (fireListener){
+      document.removeEventListener("mousedown", fireBullet);
+      document.addEventListener('click', function() {isPaused = false});
+      fireListener = false;
+  }
     
   } else {
-    //Mouse invisibility
-    document.body.style.cursor = 'auto';
+    if (!fireListener){
+      document.addEventListener("mousedown", fireBullet);
+      //Mouse invisibility
+      document.body.style.cursor = 'none';
+      fireListener = true;
+    }
+
 
     //Render scene
     requestAnimationFrame(render);
@@ -295,9 +307,11 @@ function render() {
     //Verifica se o tiro está sendo feito enquanto o avião está em movimento ou "estacionário"
     //if( ( Math.abs(aircraft.position.x - worldAimPos.x) < 2 ) && ( Math.abs(aircraft.position.y - worldAimPos.y < 2))) { m = false } //Definir diferença máxima para considerar "estacionário"
     //else { m = true }
-
-    updatePosition();
-    updateAnimation(dist, quaternion);
+    
+    if (aircraft){
+      updatePosition();
+      updateAnimation(dist, quaternion);
+    }
     updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination);
     updateAim();
     keyboardUpdate();
