@@ -151,6 +151,14 @@ var bullets = [];
 
 // Função que realiza os tiros
 function fireBullet() {
+  //aircraft.add(bulletSound);
+  if(bulletSound.isPlaying){
+    bulletSound.stop();
+    bulletSound.play();
+  }
+  else{
+    bulletSound.play();
+  }
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
@@ -210,6 +218,7 @@ function keyboardUpdate() {
   if (keyboard.down(1)) { map.SPEED = 1 }
   if (keyboard.down(2)) { map.SPEED = 3 }
   if (keyboard.down(3)) { map.SPEED = 5 }
+  //Music
   if (keyboard.down('S')) {
     if(!music.isPlaying){
       music.play();
@@ -231,10 +240,16 @@ const listener = new THREE.AudioListener();
 camera.add( listener );
 let audioLoader = new THREE.AudioLoader();
 const music = new THREE.Audio( listener ); 
+const bulletSound = new THREE.Audio( listener );
+audioLoader.load( './customObjects/mixkit-short-laser-gun-shot-1670.wav', function( buffer ) {
+  bulletSound.setBuffer(buffer);
+  bulletSound.setLoop = false;
+  bulletSound.setVolume(1);
+});
 audioLoader.load( './customObjects/raptor-151529.mp3', function( buffer ) {
 	music.setBuffer( buffer );
 	music.setLoop( true );
-	music.setVolume( 0.5 );
+	music.setVolume( 0.8 );
   music.hasPlaybackControl = true
 	//sound.play(); // Will play when start button is pressed
 });
