@@ -210,6 +210,14 @@ function keyboardUpdate() {
   if (keyboard.down(1)) { map.SPEED = 1 }
   if (keyboard.down(2)) { map.SPEED = 3 }
   if (keyboard.down(3)) { map.SPEED = 5 }
+  if (keyboard.down('S')) {
+    if(!music.isPlaying){
+      music.play();
+    }
+    else{
+      music.pause();
+    }
+  }
 
   //Pause
   if (keyboard.down('esc')) { isPaused = !isPaused; document.body.style.cursor = 'auto'; }
@@ -217,6 +225,19 @@ function keyboardUpdate() {
 
 //Mouse invisibility
 document.body.style.cursor = 'none';
+
+//Audio
+const listener = new THREE.AudioListener();
+camera.add( listener );
+let audioLoader = new THREE.AudioLoader();
+const music = new THREE.Audio( listener ); 
+audioLoader.load( './customObjects/raptor-151529.mp3', function( buffer ) {
+	music.setBuffer( buffer );
+	music.setLoop( true );
+	music.setVolume( 0.5 );
+  music.hasPlaybackControl = true
+	//sound.play(); // Will play when start button is pressed
+});
 
 render();
 function render() {
