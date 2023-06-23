@@ -91,7 +91,9 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
 //Update Position
 function updatePosition() {
   lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, 0);
+  lerpAimConfig.destination.set(worldAimPos.x, worldAimPos.y, 600);
   if (lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
+  if (lerpAimConfig) { aim2.position.lerp((lerpAimConfig.destination), lerpAimConfig.alpha) }
 }
 
 //Lerp Config
@@ -101,14 +103,24 @@ const lerpConfig = {
   move: true
 }
 
+const lerpAimConfig = {
+  destination: new THREE.Vector3(0, 55, 0),
+  alpha: 0.08,
+  move: true
+}
+
 //Create aim
 let aim = createAim();
+let aim2 = createAim();
+scene.add(aim2)
+aim2.translateZ(500)
 raycasterPlane.add(aim);
 
 //Update Aim
 function updateAim() {
   scene.attach(aim);
   aim.position.clamp(aimPosMin, aimPosMax);
+//  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
   cameraHolder.attach(aim);
 }
 
