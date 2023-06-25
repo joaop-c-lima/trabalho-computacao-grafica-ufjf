@@ -15,6 +15,7 @@ let scene, renderer, camera, light, lerpCameraConfig,
   aimPosMin, aimPosMax, camDestination, dist, quaternion;
 let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
+let worldAim2Pos = new THREE.Vector3;
 let fireListener = true;      // Evitar que o click para sair do pause chame firebullet()
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
@@ -27,8 +28,8 @@ cameraHolder.add(camera);
 scene.add(cameraHolder);
 cameraHolder.position.set(0, 115, -60);
 
-aimPosMin = new THREE.Vector3(-235, 10, -255);
-aimPosMax = new THREE.Vector3(235, 200, 255);
+aimPosMin = new THREE.Vector3(-235, 10, -1024);
+aimPosMax = new THREE.Vector3(235, 200, 1024);
 
 // Create a basic light to illuminate the scene
 let ambientColor = "rgb(150,150,150)";
@@ -39,7 +40,7 @@ scene.add(ambientLight);
 let raycaster = new THREE.Raycaster();
 let raycasterPlane, raycasterPlaneGeometry, raycasterPlaneMaterial, objects;
 objects = [];
-raycasterPlaneGeometry = new THREE.PlaneGeometry(1200, 800, 20, 20);
+raycasterPlaneGeometry = new THREE.PlaneGeometry(9200, 9800, 20, 20);
 raycasterPlaneMaterial = new THREE.MeshLambertMaterial({ color: "rgb(255,0,0)" });
 raycasterPlaneMaterial.side = THREE.DoubleSide;
 raycasterPlaneMaterial.transparent = true;
@@ -48,7 +49,7 @@ raycasterPlane = new THREE.Mesh(raycasterPlaneGeometry, raycasterPlaneMaterial);
 raycasterPlane.visible = false;
 raycasterPlane.position.set(0, 0, 0);
 cameraHolder.add(raycasterPlane);
-raycasterPlane.translateZ((-cameraHolder.position.z) + 160)
+raycasterPlane.translateZ((-cameraHolder.position.z) + 500)
 objects.push(raycasterPlane);
 window.addEventListener('mousemove', onMouseMove);
 function onMouseMove(event) {
@@ -60,9 +61,9 @@ function onMouseMove(event) {
   let intersects = raycaster.intersectObjects(objects);
   point = intersects[0].point;
   point.clamp(aimPosMin, aimPosMax);
-  scene.attach(aim);
-  aim.position.set(point.x, point.y, 160);
-  cameraHolder.attach(aim);
+  scene.attach(aim2);
+  aim2.position.set(point.x, point.y, 500);
+  cameraHolder.attach(aim2);
 
 }
 
@@ -90,50 +91,52 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
 
 //Update Position
 function updatePosition() {
-  lerpConfig.destination.set(worldAimPos.x, worldAimPos.y, 0);
-  lerpAimConfig.destination.set(worldAimPos.x, worldAimPos.y, 600);
+  lerpConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 0);
+  lerpAimConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 160);
   if (lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
-  if (lerpAimConfig) { aim2.position.lerp((lerpAimConfig.destination), lerpAimConfig.alpha) }
+  if (lerpAimConfig) { aim.position.lerp((lerpAimConfig.destination), lerpAimConfig.alpha) }
 }
 
 //Lerp Config
 const lerpConfig = {
   destination: new THREE.Vector3(0, 55, 0),
-  alpha: 0.08,
+  alpha: 0.01 ,
   move: true
 }
 
 const lerpAimConfig = {
   destination: new THREE.Vector3(0, 55, 0),
-  alpha: 0.08,
+  alpha: 0.01,
   move: true
 }
 
 //Create aim
 let aim = createAim();
 let aim2 = createAim();
-scene.add(aim2)
-aim2.translateZ(500)
-raycasterPlane.add(aim);
+scene.add(aim)
+aim.translateZ(160)
+raycasterPlane.add(aim2);
 
 //Update Aim
 function updateAim() {
-  scene.attach(aim);
-  aim.position.clamp(aimPosMin, aimPosMax);
+  scene.attach(aim2);
+  aim2.position.clamp(aimPosMin, aimPosMax);
 //  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
-  cameraHolder.attach(aim);
+  cameraHolder.attach(aim2);
 }
 
 //Update Animation
 function updateAnimation(dist, quaternion) {
 
-  aircraft.lookAt(worldAimPos.x, worldAimPos.y, worldAimPos.z);
-  dist = aircraft.position.x - worldAimPos.x;
+  //aircraft.lookAt(worldAim2Pos.x, worldAim2Pos.y, worldAim2Pos.z);
+  dist = aircraft.position.x - worldAim2Pos.x;
   if (dist < -30) { dist = -30 };
   if (dist > 30) { dist = 30 }
+  //console.log(dist);
   quaternion = new THREE.Quaternion();
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 20)) / 4);
-  aircraft.applyQuaternion(quaternion);
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 35)) / 4);
+  aircraft.quaternion.slerp(quaternion,0.1)
+  //aircraft.applyQuaternion(quaternion);
 }
 
 // Listen window size changes
@@ -177,7 +180,7 @@ function fireBullet() {
 
   var direction = new THREE.Vector3();
   let posMundoAim = new THREE.Vector3(0, 0, 0);
-  aim.getWorldPosition(posMundoAim)   // Pega posição global da mira
+  aim2.getWorldPosition(posMundoAim)   // Pega posição global da mira
   let posMundoAircraft = new THREE.Vector3(0, 0, 0);;
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   direction.subVectors(posMundoAim, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
@@ -292,13 +295,16 @@ function render() {
     requestAnimationFrame(render);
     renderer.render(scene, camera)
     map.updateMapQueue(scene); // Atualiza a fila de mapas
-    aim.getWorldPosition(worldAimPos); // Atualiza a posição global da mira
+    aim2.getWorldPosition(worldAim2Pos); // Atualiza a posição global da mira
+    aim.getWorldPosition(worldAimPos);
 
     if (aircraft) {
       updatePosition(); // Atualiza posição do avião
       updateAnimation(dist, quaternion); // Realiza animações de movimento do avião
+      //console.log(`1:${worldAimPos.x}`);
+      //console.log(`2:${worldAim2Pos.x}`);
     }
-    updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
+    updateCamera(aim2, worldAim2Pos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
     updateAim(); // Atualiza mira
     keyboardUpdate(); // Atualiza teclado
 
