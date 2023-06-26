@@ -12,7 +12,6 @@ export function updateCamera(aim, worldAimPos, lerpCameraConfig, cameraHolder, d
     if (worldAimPos.x<-120) {worldAimPos.x = -100}
     else if (worldAimPos.x>120) {worldAimPos.x = 100}
     else {worldAimPos.x=0}
-    console.log(worldAimPos.y)
     if (worldAimPos.y<50) {worldAimPos.y = 50}
     else if (worldAimPos.y>150) {worldAimPos.y = 160}
     else {worldAimPos.y=105}

@@ -12,7 +12,7 @@ import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
 
 let scene, renderer, camera, light, lerpCameraConfig,
-  aimPosMin, aimPosMax, camDestination, dist, quaternionZ, quaternionX, quaternionY;
+  aimPosMin, aimPosMax, camDestination, dist, quaternionZ, quaternionXY;
 let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 let worldAim2Pos = new THREE.Vector3;
@@ -95,9 +95,9 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
 //Update Position
 function updatePosition() {
   lerpConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 0);
-  lerpAimConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 160);
+  //lerpAimConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 160);
   if (lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
-  if (lerpAimConfig) { aim.position.lerp((lerpAimConfig.destination), lerpAimConfig.alpha) }
+  //if (lerpAimConfig) { aim.position.lerp((lerpAimConfig.destination), lerpAimConfig.alpha) }
 }
 
 //Lerp Config
@@ -117,8 +117,15 @@ const lerpAimConfig = {
 let aim = createAim();
 let aim2 = createAim();
 scene.add(aim)
-aim.translateZ(160)
+//aim.translateZ(160)
 raycasterPlane.add(aim2);
+
+//Plano mira grande
+let nearAimPlaneGeometry = new THREE.PlaneGeometry(9200, 9800, 20, 20);
+let nearAimPlane = new THREE.Plane(new THREE.Vector3(0,0,-1), 160);
+//nearAimPlane.visible = true;
+//scene.add(nearAimPlane);
+//nearAimPlane.position.set(0, 0, aim.position.z);
 
 //Update Aim
 function updateAim() {
@@ -126,10 +133,22 @@ function updateAim() {
   aim2.position.clamp(aimPosMin, aimPosMax);
 //  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
   cameraHolder.attach(aim2);
+  if(!aircraft){
+    return;
+  }
+  aim2.getWorldPosition(worldAim2Pos);
+  let lineAircraftAim = new THREE.Line3(aircraft.position, worldAim2Pos);
+  let intersectPoint = new THREE.Vector3();
+  nearAimPlane.intersectLine(lineAircraftAim, intersectPoint);
+  aim.position.set(intersectPoint.x, intersectPoint.y, intersectPoint.z);
+  //aim.position.y.set(intersectPoint.y);
+  //aim.position.z.set(intersectPoint.z);
+  //console.log(aim.position)
+  //console.log(nearAimPlane.intersectLine(lineAircraftAim).y);
 }
 
 //Update Animation
-function updateAnimation(dist, quaternionZ, quaternionX, quaternionY) {
+function updateAnimation(dist, quaternionZ, quaternionXY) {
 
   //aircraft.lookAt(worldAim2Pos.x, worldAim2Pos.y, worldAim2Pos.z);
   dist = aircraft.position.x - worldAim2Pos.x;
@@ -144,11 +163,11 @@ function updateAnimation(dist, quaternionZ, quaternionX, quaternionY) {
   //aircraft.applyQuaternion(quaternionZ);
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   directionAnim.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
-  var mx = new THREE.Matrix4().lookAt(worldAim2Pos,posMundoAircraft,new THREE.Vector3(0,0,0));
+  let matrixQuat = new THREE.Matrix4().lookAt(worldAim2Pos,posMundoAircraft,new THREE.Vector3(0,0,0));
   //console.log(mx)
-  quaternionX = new THREE.Quaternion().setFromRotationMatrix(mx);
-  aircraft.quaternion.slerp(quaternionX,0.1);
-  //aircraft.applyQuaternion(quaternionX);
+  quaternionXY = new THREE.Quaternion().setFromRotationMatrix(matrixQuat);
+  aircraft.quaternion.slerp(quaternionXY,0.1);
+  //aircraft.applyQuaternion(quaternionXY);
 
 }
 
@@ -198,7 +217,7 @@ function fireBullet() {
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   direction.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
   bullet.velocity = direction;
-  bullet.velocity.multiplyScalar(5); // Muda velocidade do disparo
+  bullet.velocity.multiplyScalar(15); // Muda velocidade do disparo
 
   aircraft.add(bullet); // Faz o disparo sair do avião
   bullet.position.set(0, 0, 0);
@@ -308,17 +327,17 @@ function render() {
     requestAnimationFrame(render);
     renderer.render(scene, camera)
     map.updateMapQueue(scene); // Atualiza a fila de mapas
-    aim2.getWorldPosition(worldAim2Pos); // Atualiza a posição global da mira
+    //aim2.getWorldPosition(worldAim2Pos); // Atualiza a posição global da mira
     aim.getWorldPosition(worldAimPos);
-
+    updateAim(); // Atualiza mira
     if (aircraft) {
       updatePosition(); // Atualiza posição do avião
-      updateAnimation(dist, quaternionZ, quaternionX, quaternionY); // Realiza animações de movimento do avião
+      updateAnimation(dist, quaternionZ, quaternionXY); // Realiza animações de movimento do avião
       //console.log(`1:${worldAimPos.x}`);
       //console.log(`2:${worldAim2Pos.x}`);
     }
     updateCamera(aim2, worldAim2Pos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
-    updateAim(); // Atualiza mira
+    
     keyboardUpdate(); // Atualiza teclado
 
     //Realiza o movimento dos tiros e excluí da cena
