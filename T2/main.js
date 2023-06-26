@@ -17,7 +17,7 @@ let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 let worldAim2Pos = new THREE.Vector3;
 let fireListener = true;      // Evitar que o click para sair do pause chame firebullet()
-var direction = new THREE.Vector3();
+//var direction = new THREE.Vector3();
 let directionAnim = new THREE.Vector3();
 let posMundoAircraft = new THREE.Vector3(0, 0, 0);
 scene = new THREE.Scene();    // Create main scene
@@ -121,7 +121,6 @@ scene.add(aim)
 raycasterPlane.add(aim2);
 
 //Plano mira grande
-let nearAimPlaneGeometry = new THREE.PlaneGeometry(9200, 9800, 20, 20);
 let nearAimPlane = new THREE.Plane(new THREE.Vector3(0,0,-1), 160);
 //nearAimPlane.visible = true;
 //scene.add(nearAimPlane);
@@ -198,7 +197,7 @@ var bullets = [];
 
 // Função que realiza os tiros
 function fireBullet() {
-  //aircraft.add(bulletSound);
+  aircraft.add(bulletSound);
   if(bulletSound.isPlaying){
     bulletSound.stop();
     bulletSound.play();
@@ -206,9 +205,11 @@ function fireBullet() {
   else{
     bulletSound.play();
   }
+  var direction = new THREE.Vector3();
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
-  var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+  var bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(255,0,0)", emissive: "rgb(255,0,0)" });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+  bullet.scale.set(1,1,15);
 
   
   //let posMundoAim = new THREE.Vector3(0, 0, 0);
@@ -223,6 +224,7 @@ function fireBullet() {
   bullet.position.set(0, 0, 0);
   scene.attach(bullet)  // Adiciona o disparo à cena
   bullets.push(bullet); // Adiciona o disparo no array
+  
 }
 
 var turretV; 
@@ -251,6 +253,45 @@ function bulletMov() {
       bullets.splice(i, 1);  //Remove do array
       i--;
     }
+  }
+}
+let callTurretRNG = setInterval(turretRNG, 1000);
+function turretRNG(){
+  for(let i=0; i<map.turrets.length - 1; i++){
+    let rng = Math.floor(Math.random() * 10);
+    //console.log(`${i} - ${rng}`)
+    if (rng<=2){
+      turretFire(i);
+    }
+  }
+}
+function turretFire(index){
+  if (!aircraft){
+    return;
+  }
+  let directionEnemy = new THREE.Vector3()
+  let bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+  let bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(138,43,226)", emissive: "rgb(138,43,226)" });
+  let bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+  bullet.scale.set(0.2,0.2,5)
+  let turretPos = new THREE.Vector3();
+  aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
+  map.turrets[index].mesh.getWorldPosition(turretPos);
+  directionEnemy.subVectors(posMundoAircraft, turretPos).normalize();
+  bullet.velocity = directionEnemy;
+  bullet.velocity.multiplyScalar(5); // Muda velocidade do disparo
+  map.turrets[index].mesh.add(bullet); // Faz o disparo sair do avião
+  bullet.position.set(0, 0, 0);
+  scene.attach(bullet)  // Adiciona o disparo à cena
+  bullet.lookAt(posMundoAircraft);
+  bullets.push(bullet); // Adiciona o disparo no array
+  map.turrets[index].mesh.add(enemyBulletSound);
+  if (enemyBulletSound.isPlaying){
+    enemyBulletSound.stop();
+    enemyBulletSound.play();
+  }
+  else{
+    enemyBulletSound.play();
   }
 }
 
@@ -287,18 +328,26 @@ const listener = new THREE.AudioListener();
 camera.add( listener );
 let audioLoader = new THREE.AudioLoader();
 const music = new THREE.Audio( listener ); 
-const bulletSound = new THREE.Audio( listener );
+const bulletSound = new THREE.PositionalAudio( listener );
+const enemyBulletSound = new THREE.PositionalAudio( listener );
 audioLoader.load( './customObjects/mixkit-short-laser-gun-shot-1670.wav', function( buffer ) {
   bulletSound.setBuffer(buffer);
   bulletSound.setLoop = false;
   bulletSound.setVolume(1);
+  bulletSound.setRefDistance(1000.0)
 });
 audioLoader.load( './customObjects/raptor-151529.mp3', function( buffer ) {
 	music.setBuffer( buffer );
 	music.setLoop( true );
-	music.setVolume( 0.8 );
+	music.setVolume( 0.5 );
   music.hasPlaybackControl = true
 	//sound.play(); // Will play when start button is pressed
+});
+audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
+	enemyBulletSound.setBuffer( buffer );
+	enemyBulletSound.setLoop( true );
+	enemyBulletSound.setVolume( 0.5 );
+  enemyBulletSound.setRefDistance(500.0);
 });
 
 render();
@@ -339,7 +388,7 @@ function render() {
     updateCamera(aim2, worldAim2Pos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
     
     keyboardUpdate(); // Atualiza teclado
-
+    //turretRNG();
     //Realiza o movimento dos tiros e excluí da cena
     bulletMov();
   }
