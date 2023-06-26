@@ -12,11 +12,14 @@ import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
 
 let scene, renderer, camera, light, lerpCameraConfig,
-  aimPosMin, aimPosMax, camDestination, dist, quaternion;
+  aimPosMin, aimPosMax, camDestination, dist, quaternionZ, quaternionX, quaternionY;
 let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 let worldAim2Pos = new THREE.Vector3;
 let fireListener = true;      // Evitar que o click para sair do pause chame firebullet()
+var direction = new THREE.Vector3();
+let directionAnim = new THREE.Vector3();
+let posMundoAircraft = new THREE.Vector3(0, 0, 0);
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 let keyboard = new KeyboardState(); //Variável para o teclado
@@ -126,17 +129,27 @@ function updateAim() {
 }
 
 //Update Animation
-function updateAnimation(dist, quaternion) {
+function updateAnimation(dist, quaternionZ, quaternionX, quaternionY) {
 
   //aircraft.lookAt(worldAim2Pos.x, worldAim2Pos.y, worldAim2Pos.z);
   dist = aircraft.position.x - worldAim2Pos.x;
-  if (dist < -30) { dist = -30 };
-  if (dist > 30) { dist = 30 }
+  if (dist < -75) { dist = -75 };
+  if (dist > 75) { dist = 75 }
   //console.log(dist);
-  quaternion = new THREE.Quaternion();
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 35)) / 4);
-  aircraft.quaternion.slerp(quaternion,0.1)
-  //aircraft.applyQuaternion(quaternion);
+  quaternionZ = new THREE.Quaternion();
+  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 35)) / 4);
+  aircraft.quaternion.slerp(quaternionZ,0.1);
+  
+  //console.log(directionAnim);
+  //aircraft.applyQuaternion(quaternionZ);
+  aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
+  directionAnim.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
+  var mx = new THREE.Matrix4().lookAt(worldAim2Pos,posMundoAircraft,new THREE.Vector3(0,0,0));
+  //console.log(mx)
+  quaternionX = new THREE.Quaternion().setFromRotationMatrix(mx);
+  aircraft.quaternion.slerp(quaternionX,0.1);
+  //aircraft.applyQuaternion(quaternionX);
+
 }
 
 // Listen window size changes
@@ -178,12 +191,12 @@ function fireBullet() {
   var bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
 
-  var direction = new THREE.Vector3();
-  let posMundoAim = new THREE.Vector3(0, 0, 0);
-  aim2.getWorldPosition(posMundoAim)   // Pega posição global da mira
-  let posMundoAircraft = new THREE.Vector3(0, 0, 0);;
+  
+  //let posMundoAim = new THREE.Vector3(0, 0, 0);
+  aim2.getWorldPosition(worldAim2Pos)   // Pega posição global da mira
+  
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
-  direction.subVectors(posMundoAim, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
+  direction.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
   bullet.velocity = direction;
   bullet.velocity.multiplyScalar(5); // Muda velocidade do disparo
 
@@ -300,7 +313,7 @@ function render() {
 
     if (aircraft) {
       updatePosition(); // Atualiza posição do avião
-      updateAnimation(dist, quaternion); // Realiza animações de movimento do avião
+      updateAnimation(dist, quaternionZ, quaternionX, quaternionY); // Realiza animações de movimento do avião
       //console.log(`1:${worldAimPos.x}`);
       //console.log(`2:${worldAim2Pos.x}`);
     }
