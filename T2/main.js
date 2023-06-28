@@ -256,7 +256,7 @@ function bulletMov() {
   }
 }
 let rngDelay = 2000;
-let callTurretRNG = setInterval(turretRNG, rngDelay);
+//let callTurretRNG = setInterval(turretRNG, rngDelay);
 function turretRNG(){
   for(let i=0; i<map.turrets.length - 1; i++){
     let rng = Math.floor(Math.random() * 10);
@@ -371,6 +371,7 @@ for (let i = 0; i<=2; i++) {
   enemyBulletSound.setRefDistance(500.0);
 });*/
 
+let rngTimer = 0;
 render();
 function render() {
   if (isPaused) { // Pause Ativo
@@ -382,7 +383,7 @@ function render() {
       document.removeEventListener("click", fireBullet);
       document.addEventListener('click', function () { isPaused = false });
       fireListener = false; // Desativa os disparos
-      clearInterval(callTurretRNG)
+      //clearInterval(callTurretRNG)
       //console.log("clear")
     }
 
@@ -393,7 +394,7 @@ function render() {
       //Mouse invisibility
       document.body.style.cursor = 'none';
       fireListener = true; // Ativa os disparos
-      callTurretRNG = setInterval(turretRNG, rngDelay);
+      //callTurretRNG = setInterval(turretRNG, rngDelay);
       //console.log("resume")
     }
 
@@ -413,6 +414,11 @@ function render() {
     updateCamera(aim2, worldAim2Pos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
     
     keyboardUpdate(); // Atualiza teclado
+    rngTimer++;
+    if (rngTimer==121){
+      turretRNG();
+      rngTimer = 0;
+    }
     //turretRNG();
     //Realiza o movimento dos tiros e excluí da cena
     bulletMov();
