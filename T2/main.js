@@ -23,6 +23,7 @@ let posMundoAircraft = new THREE.Vector3(0, 0, 0);
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 let keyboard = new KeyboardState(); //Variável para o teclado
+let aircraftHealth = 5;
 
 //Camera parameters
 camera = createCamera();
@@ -336,6 +337,18 @@ function keyboardUpdate() {
 //Mouse invisibility
 document.body.style.cursor = 'none';
 
+function aircraftDamage(){
+  aircraft.add(aircraftDamageSound);
+  if(aircraftDamageSound.isPlaying){
+    aircraftDamageSound.stop();
+    aircraftDamageSound.play();
+  }
+  else{
+    aircraftDamageSound.play();
+  }
+  aircraftHealth-=1;
+
+}
 //Audio
 const listener = new THREE.AudioListener();
 camera.add( listener );
@@ -343,6 +356,7 @@ let audioLoader = new THREE.AudioLoader();
 const music = new THREE.Audio( listener ); 
 const bulletSound = new THREE.PositionalAudio( listener );
 let enemyBulletSound = [];
+let aircraftDamageSound = new THREE.PositionalAudio( listener );
 audioLoader.load( './customObjects/mixkit-short-laser-gun-shot-1670.wav', function( buffer ) {
   bulletSound.setBuffer(buffer);
   bulletSound.setLoop = false;
@@ -364,6 +378,12 @@ for (let i = 0; i<=2; i++) {
     enemyBulletSound[i].setVolume( 0.5 );
     enemyBulletSound[i].setRefDistance(500.0);
   })}
+audioLoader.load( './customObjects/mixkit-truck-crash-with-explosion-1616.wav', function( buffer ) {
+  aircraftDamageSound.setBuffer(buffer);
+  aircraftDamageSound.setLoop = false;
+  aircraftDamageSound.setVolume(1);
+  aircraftDamageSound.setRefDistance(1000.0)
+});
 /*audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
 	enemyBulletSound.setBuffer( buffer );
 	enemyBulletSound.setLoop( true );
