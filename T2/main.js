@@ -282,7 +282,7 @@ function turretFire(index){
   map.turrets[index].mesh.getWorldPosition(turretPos);
   directionEnemy.subVectors(posMundoAircraft, turretPos).normalize();
   bullet.velocity = directionEnemy;
-  bullet.velocity.multiplyScalar(15); // Muda velocidade do disparo
+  bullet.velocity.multiplyScalar(2 + map.SPEED); // Muda velocidade do disparo
   //console.log(bullet.velocity)
   map.turrets[index].mesh.add(bullet); // Faz o disparo sair do avião
   bullet.position.set(0, 0, 0);
@@ -302,6 +302,14 @@ function turretFire(index){
 function enemyBulletMov(){
   for (var i = 0; i < enemyBullets.length; i++) {
     enemyBullets[i].position.add(enemyBullets[i].velocity) // Atualiza o movimento dos disparos
+
+    if (Math.abs(enemyBullets[i].position.x - aircraft.position.x) < 15 && Math.abs(enemyBullets[i].position.y - aircraft.position.y) < 10 && Math.abs(enemyBullets[i].position.z - aircraft.position.z) < 20) {
+      aircraftDamage();
+      scene.remove(enemyBullets[i]);  //Remove o tiro da cena
+      enemyBullets.splice(i, 1);  //Remove do array
+      i--;
+      continue;
+    }
     if (enemyBullets[i].position.z > map.FADE_END() || enemyBullets[i].position.y < map.MAP_Y/2 || Math.abs(enemyBullets[i].position.x) > map.MAP_X/2) {
       scene.remove(enemyBullets[i]);  //Remove o tiro da cena
       enemyBullets.splice(i, 1);  //Remove do array
@@ -347,7 +355,7 @@ function aircraftDamage(){
     aircraftDamageSound.play();
   }
   aircraftHealth-=1;
-
+  changeObjectColor();
 }
 //Audio
 const listener = new THREE.AudioListener();
@@ -391,6 +399,16 @@ audioLoader.load( './customObjects/mixkit-truck-crash-with-explosion-1616.wav', 
   enemyBulletSound.setRefDistance(500.0);
 });*/
 
+function changeObjectColor() {
+  if (aircraft) {
+     aircraft.traverse(function (child) {
+        if (child.material)
+           child.material.color.set(`rgb(${255},${aircraftHealth*51}, ${aircraftHealth*51})`);
+     });
+  }
+}
+
+
 let rngTimer = 0;
 render();
 function render() {
@@ -428,9 +446,12 @@ function render() {
     if (aircraft) {
       updatePosition(); // Atualiza posição do avião
       updateAnimation(dist, quaternionZ, quaternionXY); // Realiza animações de movimento do avião
-      //console.log(`1:${worldAimPos.x}`);
-      //console.log(`2:${worldAim2Pos.x}`);
+
+      if (enemyBullets != null) {
+        enemyBulletMov();
+      }
     }
+
     updateCamera(aim2, worldAim2Pos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
     
     keyboardUpdate(); // Atualiza teclado
@@ -442,6 +463,6 @@ function render() {
     //turretRNG();
     //Realiza o movimento dos tiros e excluí da cena
     bulletMov();
-    enemyBulletMov();
   }
+
 }
