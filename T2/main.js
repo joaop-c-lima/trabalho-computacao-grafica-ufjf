@@ -257,15 +257,16 @@ function bulletMov() {
             else {
               turretDamageSound[j].play();
             }
+            break;
           }
         }
         else {
-          continue;
+          
         }
       }
     }
 
-    if (bullets.length != 0) {
+    if (bullets.length != 0 && i >= 0) {
       if (bullets[i].position.z > map.FADE_END() || bullets[i].position.y < map.MAP_Y / 2 || Math.abs(bullets[i].position.x) > map.MAP_X / 2) {
         scene.remove(bullets[i]);  //Remove o tiro da cena
         bullets.splice(i, 1);  //Remove do array
