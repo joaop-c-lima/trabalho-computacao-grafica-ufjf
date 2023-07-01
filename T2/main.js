@@ -245,6 +245,10 @@ function bulletMov() {
         // Verifica se a torreta foi atingida
         if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
           map.turretsDying[j] = true; // Se atingida, status passa sendo destruída
+          scene.remove(bullets[i]);  //Remove o tiro da cena
+          bullets.splice(i, 1);  //Remove do array
+          i--;
+          continue;
         }
       }
     }
@@ -442,6 +446,7 @@ function render() {
     map.updateMapQueue(scene); // Atualiza a fila de mapas
     //aim2.getWorldPosition(worldAim2Pos); // Atualiza a posição global da mira
     aim.getWorldPosition(worldAimPos);
+    console.log(aircraftHealth);  
     updateAim(); // Atualiza mira
     if (aircraft) {
       updatePosition(); // Atualiza posição do avião
