@@ -210,7 +210,7 @@ function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
     bullets[i].position.add(bullets[i].velocity) // Atualiza o movimento dos disparos
     for (var j = 0; j < map.MAX_TURRET; j++) {
-      if (!map.turretsDying[j] && map.turretsVisible[j] ) {
+      if (!map.turrets[j].turretsDying && map.turrets[j].visible ) {
         turretV = new THREE.Vector3();
         map.turrets[j].mesh.getWorldPosition(turretV) // Armazena a posição global das torretas
 
