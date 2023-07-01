@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { makeRandomTree } from './tree.js';
+import * as DSS from './deathStarSurface.js';
 import { getRndInteger } from './utils.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import { getDeathStarSurface } from './deathStarSurface.js';
 
 function euclideanDistance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -10,20 +11,14 @@ function euclideanDistance(x1, y1, x2, y2) {
 // Creates the queue of map parts
 export function makeMap() {
   let map = {
-    MAP_COLOR: "#228b22",
-    MAP_X: 500.0,
-    MAP_Y: 0.01,
-    MAP_Z: 100.0,
-    WALL_HEIGHT: 100.0,
-    WALL_COLOR: "#808487",
-    NUM_MAX_MAP: 10,
+    NUM_MAX_MAP: 15,
     MAX_NON_VISIBLE_MAPS: 2,
-    Z_DESTINATION: function () { return this.MAX_NON_VISIBLE_MAPS * this.MAP_Z * (-1) },
+    Z_DESTINATION: function () { return this.MAX_NON_VISIBLE_MAPS * DSS.TRENCH_GROUND_Z * (-1) },
     SPEED: 1,
-    MIN_NUM_TREES: 5,
-    MAX_NUM_TREES: 6,
-    FADE_START: 200,
-    FADE_END: function () { return (this.NUM_MAX_MAP - 2) * this.MAP_Z },
+    MIN_NUM_RELIEF: 5,
+    MAX_NUM_RELIEF: 15,
+    FADE_START: 500,
+    FADE_END: function () { return (this.NUM_MAX_MAP - 2) * DSS.TRENCH_GROUND_Z },
     MAX_TURRET: 3,
     DISTANCE_TOLERANCE: 20,
     TURRET_SPAWN_CHANCE: 30,
@@ -31,98 +26,65 @@ export function makeMap() {
     DEATH_FADE_SPEED: 0.05,
     queue: [],
     turrets: [],
-    turretsLoaded: [],
-    turretsVisible: [],
-    turretsBB: [],
-    turretsDying: [],
     // Creates and places a map part at the end of the queue
     addMapInQueue: function () {
       this.queue.push(this.makeMap());
-      this.queue[this.queue.length - 1].map.position.set(0, 0, this.queue[this.queue.length - 2].map.position.z + this.MAP_Z);
-      this.changeOpacity(this.queue[this.queue.length - 1].map, this.opacityLinearFunction(this.queue[this.queue.length - 2].map.position.z + this.MAP_Z));
+      this.queue[this.queue.length - 1].map.position.set(0, 0, this.queue[this.queue.length - 2].map.position.z + DSS.TRENCH_GROUND_Z);
+      this.changeOpacity(this.queue[this.queue.length - 1].map, this.opacityLinearFunction(this.queue[this.queue.length - 2].map.position.z + DSS.TRENCH_GROUND_Z));
     },
-    // Creates the edges lines for a mesh
-    makeEdges: function(mesh){
-      let edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
-      let edgesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-      let edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-      edges.material.transparent = true;
-      mesh.add(edges);
-    },
-    // Creates a wall
-    makeWall: function () {
-      let wallMaterial = new THREE.MeshLambertMaterial({ color: this.WALL_COLOR });
-      wallMaterial.transparent = true;
-      let wallGeometry = new THREE.BoxGeometry(this.MAP_Y, this.WALL_HEIGHT, this.MAP_Z);
-      let wall = new THREE.Mesh(wallGeometry, wallMaterial);
-      this.makeEdges(wall);
-      wall.receiveShadow = true;
-      wall.castShadow = true;
-      return wall;
-    },
-    // Creates the map along with randomly placed trees and a unique randomly placed turret
+    // Creates the map along with randomly placed reliefs and a unique randomly placed turret
     makeMap: function () {
       let mapPart = {
         map: null,
         turret: -1
       };
-      let mapMaterial = new THREE.MeshLambertMaterial({ color: this.MAP_COLOR });
-      mapMaterial.transparent = true;
-      let mapGeometry = new THREE.BoxGeometry(this.MAP_X, this.MAP_Y, this.MAP_Z);
-      let map = new THREE.Mesh(mapGeometry, mapMaterial);
-      map.position.set(0.0, 0.0, 0.0);
-      map.receiveShadow = true;
-      this.makeEdges(map);
-      let trees = [];
+      let map = getDeathStarSurface();
+      let reliefs = [];
       let coordinates;
       let collision;
-      for (let i = 0; i < getRndInteger(this.MIN_NUM_TREES, this.MAX_NUM_TREES); i++) {
-        trees.push(makeRandomTree());
-        map.add(trees[trees.length - 1]);
+      for (let i = 0; i < getRndInteger(this.MIN_NUM_RELIEF, this.MAX_NUM_RELIEF); i++) {
+        reliefs.push(DSS.getRelief());
+        map.trenchGround.add(reliefs[reliefs.length - 1]);
         do {
-          coordinates = new THREE.Vector3(getRndInteger(0, (this.MAP_X - this.DISTANCE_TOLERANCE)) - ((this.MAP_X - this.DISTANCE_TOLERANCE) / 2),
-            (trees[trees.length - 1].geometry.parameters.height + this.MAP_Y) / 2,
-            getRndInteger(0, (this.MAP_Z - this.DISTANCE_TOLERANCE)) - ((this.MAP_Z - this.DISTANCE_TOLERANCE) / 2))
+          coordinates = new THREE.Vector3(getRndInteger(0, (DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE) / 2),
+            (reliefs[reliefs.length - 1].geometry.parameters.height + DSS.TRENCH_GROUND_Y) / 2,
+            getRndInteger(0, (DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE) / 2))
           collision = false;
-          trees.forEach((tree) => {
-            collision = euclideanDistance(tree.position.x, tree.position.z, coordinates.x, coordinates.z) < this.DISTANCE_TOLERANCE;
+          reliefs.forEach((relief) => {
+            collision = euclideanDistance(relief.position.x, relief.position.z, coordinates.x, coordinates.z) < this.DISTANCE_TOLERANCE;
             if (collision) {
               return;
             }
           })
         } while (collision);
-        trees[trees.length - 1].position.copy(coordinates);
+        reliefs[reliefs.length - 1].position.copy(coordinates);
       }
-      let rightWall = this.makeWall();
-      let leftWall = this.makeWall();
-      map.add(rightWall);
-      rightWall.position.set(((-0.5) * this.MAP_X) - this.MAP_Y, (this.WALL_HEIGHT + this.MAP_Y) / 2, 0);
-      map.add(leftWall);
-      leftWall.position.set((0.5 * this.MAP_X) + this.MAP_Y, (this.WALL_HEIGHT + this.MAP_Y) / 2, 0)
+
       for (let i = 0; i < this.MAX_TURRET; i++) {
-        if (this.turretsLoaded[i] && !this.turretsVisible[i] && getRndInteger(0, 100) <= this.TURRET_SPAWN_CHANCE && !this.turretsDying[i]) {
+        if (this.turrets[i].loaded && !this.turrets[i].visible && !this.turrets[i].dying && getRndInteger(0, 100) <= this.TURRET_SPAWN_CHANCE) {
           do {
-            coordinates = new THREE.Vector3(getRndInteger(0, (this.MAP_X - this.DISTANCE_TOLERANCE)) - ((this.MAP_X - this.DISTANCE_TOLERANCE) / 2),
+            coordinates = new THREE.Vector3(getRndInteger(0, (DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE) / 2),
               1,
-              getRndInteger(0, (this.MAP_Z - this.DISTANCE_TOLERANCE)) - ((this.MAP_Z - this.DISTANCE_TOLERANCE) / 2))
+              getRndInteger(0, (DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE) / 2))
             collision = false;
-            trees.forEach((tree) => {
-              collision = euclideanDistance(tree.position.x, tree.position.z, coordinates.x, coordinates.z) < this.DISTANCE_TOLERANCE;
+            reliefs.forEach((relief) => {
+              collision = euclideanDistance(relief.position.x, relief.position.z, coordinates.x, coordinates.z) < this.DISTANCE_TOLERANCE;
               if (collision) {
                 return;
               }
             })
           } while (collision);
-          map.add(this.turrets[i].mesh);
+          map.trenchGround.add(this.turrets[i].mesh);
           this.turrets[i].mesh.visible = true;
-          this.turretsVisible[i] = true;
+          this.turrets[i].visible = true;
           this.turrets[i].mesh.position.copy(coordinates);
           this.turrets[i].life = this.TURRET_MAX_HP;
           mapPart.turret = i;
           break;
         }
       }
-      mapPart.map = map;
+
+      mapPart.map = map.trenchGround;
       return mapPart;
     },
     //Dispose a mesh and their children
@@ -139,7 +101,7 @@ export function makeMap() {
     removeMap: function (scene) {
       this.disposeAll(this.queue[0].map, scene)
       if (this.queue[0].turret != -1) {
-        this.turretsVisible[this.queue[0].turret] = false;
+        this.turrets[this.queue[0].turret].visible = false;
       }
       this.queue.shift();
     },
@@ -171,7 +133,7 @@ export function makeMap() {
       let dead;
       let death_fade_speed = this.DEATH_FADE_SPEED;
       for (let i = 0; i < this.MAX_TURRET; i++) {
-        if (this.turretsDying[i]) {
+        if (this.turrets[i].dying) {
           this.turrets[i].mesh.traverse(function (node) {
             if (node.material) {
               node.material.opacity -= death_fade_speed;
@@ -179,8 +141,8 @@ export function makeMap() {
             }
           });
           if (dead) {
-            this.turretsDying[i] = false;
-            this.turretsVisible[i] = false;
+            this.turrets[i].dying = false;
+            this.turrets[i].visible = false;
             this.turrets[i].mesh.visible = false;
             for (let j = 0; j < this.NUM_MAX_MAP; j++) {
               if (this.queue[j].turret == i) {
@@ -203,20 +165,20 @@ export function makeMap() {
       }
     }
   };
+
+
   var loader = new GLTFLoader();
   for (let i = 0; i <= map.MAX_TURRET; i++) {
-    map.turretsLoaded.push(false);
-    map.turretsVisible.push(false);
-    map.turretsDying.push(false);
     map.turrets.push({
       mesh: null,
+      loaded: false,
+      visible: false,
+      dying: false,
       life: 5,
     })
-
-
   }
   for (let i = 0; i <= map.MAX_TURRET; i++) {
-    loader.load("./turret.glb", function (gltf) {
+    loader.load("./customObjects/turbolaser.glb", function (gltf) {
       map.turrets[i].mesh = gltf.scene;
       map.turrets[i].mesh.traverse(function (child) {
         if (child) {
@@ -233,7 +195,7 @@ export function makeMap() {
       map.turrets[i].mesh.scale.set(10, 10, 10);
       map.turrets[i].mesh.name = "TURRET";
       map.turrets[i].mesh.rotateY(Math.PI / 2);
-      map.turretsLoaded[i] = true;
+      map.turrets[i].loaded = true;
     })
 
   }

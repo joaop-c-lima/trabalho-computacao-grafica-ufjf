@@ -104,7 +104,7 @@ function updatePosition() {
 //Lerp Config
 const lerpConfig = {
   destination: new THREE.Vector3(0, 55, 0),
-  alpha: 0.01 ,
+  alpha: 0.01,
   move: true
 }
 
@@ -122,7 +122,7 @@ scene.add(aim)
 raycasterPlane.add(aim2);
 
 //Plano mira grande
-let nearAimPlane = new THREE.Plane(new THREE.Vector3(0,0,-1), 160);
+let nearAimPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 160);
 //nearAimPlane.visible = true;
 //scene.add(nearAimPlane);
 //nearAimPlane.position.set(0, 0, aim.position.z);
@@ -131,9 +131,9 @@ let nearAimPlane = new THREE.Plane(new THREE.Vector3(0,0,-1), 160);
 function updateAim() {
   scene.attach(aim2);
   aim2.position.clamp(aimPosMin, aimPosMax);
-//  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
+  //  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
   cameraHolder.attach(aim2);
-  if(!aircraft){
+  if (!aircraft) {
     return;
   }
   aim2.getWorldPosition(worldAim2Pos);
@@ -156,17 +156,17 @@ function updateAnimation(dist, quaternionZ, quaternionXY) {
   if (dist > 100) { dist = 100 }
   //console.log(dist);
   quaternionZ = new THREE.Quaternion();
-  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 35)) / 4);
-  aircraft.quaternion.slerp(quaternionZ,0.029);
-  
+  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 33)) / 4);
+  aircraft.quaternion.slerp(quaternionZ, 0.029);
+
   //console.log(directionAnim);
   //aircraft.applyQuaternion(quaternionZ);
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   directionAnim.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
-  let matrixQuat = new THREE.Matrix4().lookAt(worldAim2Pos,posMundoAircraft,new THREE.Vector3(0,0,0));
+  let matrixQuat = new THREE.Matrix4().lookAt(worldAim2Pos, posMundoAircraft, new THREE.Vector3(0, 0, 0));
   //console.log(mx)
   quaternionXY = new THREE.Quaternion().setFromRotationMatrix(matrixQuat);
-  aircraft.quaternion.slerp(quaternionXY,0.1);
+  aircraft.quaternion.slerp(quaternionXY, 0.1);
   //aircraft.applyQuaternion(quaternionXY);
 
 }
@@ -184,7 +184,7 @@ scene.add(sun)
 
 // Carrega o céu
 const textureLoader = new THREE.TextureLoader();
-let textureEquirec = textureLoader.load('./sky.jpeg');
+let textureEquirec = textureLoader.load('./customObjects/sky.png');
 textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
 textureEquirec.encoding = THREE.sRGBEncoding;
 scene.background = textureEquirec
@@ -199,23 +199,23 @@ var bullets = [];
 // Função que realiza os tiros
 function fireBullet() {
   aircraft.add(bulletSound);
-  if(bulletSound.isPlaying){
+  if (bulletSound.isPlaying) {
     bulletSound.stop();
     bulletSound.play();
   }
-  else{
+  else {
     bulletSound.play();
   }
   var direction = new THREE.Vector3();
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   var bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(255,0,0)", emissive: "rgb(255,0,0)" });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-  bullet.scale.set(1,1,15);
+  bullet.scale.set(1, 1, 15);
 
-  
+
   //let posMundoAim = new THREE.Vector3(0, 0, 0);
   aim2.getWorldPosition(worldAim2Pos)   // Pega posição global da mira
-  
+
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   direction.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
   bullet.velocity = direction;
@@ -225,10 +225,10 @@ function fireBullet() {
   bullet.position.set(0, 0, 0);
   scene.attach(bullet)  // Adiciona o disparo à cena
   bullets.push(bullet); // Adiciona o disparo no array
-  
+
 }
 
-var turretV; 
+var turretV;
 
 function euclideanDistance(x1, y1, z1, x2, y2, z2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
@@ -238,22 +238,30 @@ function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
     bullets[i].position.add(bullets[i].velocity) // Atualiza o movimento dos disparos
     for (var j = 0; j < map.MAX_TURRET; j++) {
-      if (!map.turretsDying[j] && map.turretsVisible[j] ) {
+      if (!map.turrets[j].dying && map.turrets[j].visible) {
         turretV = new THREE.Vector3();
         map.turrets[j].mesh.getWorldPosition(turretV) // Armazena a posição global das torretas
 
         // Verifica se a torreta foi atingida
         if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
-          map.turretsDying[j] = true; // Se atingida, status passa sendo destruída
+          map.turrets[j].dying = true; // Se atingida, status passa sendo destruída
           scene.remove(bullets[i]);  //Remove o tiro da cena
           bullets.splice(i, 1);  //Remove do array
           i--;
+          map.turrets[j].mesh.add(turretDamageSound[j]); 
+          if(!turretDamageSound[j].isPlaying){
+            turretDamageSound[j].stop();
+            turretDamageSound[j].play();
+          }
+          else{
+            turretDamageSound[j].play();
+          }
           continue;
         }
       }
     }
 
-    if (bullets[i].position.z > map.FADE_END() || bullets[i].position.y < map.MAP_Y/2 || Math.abs(bullets[i].position.x) > map.MAP_X/2) {
+    if (bullets[i].position.z > map.FADE_END() || bullets[i].position.y < map.MAP_Y / 2 || Math.abs(bullets[i].position.x) > map.MAP_X / 2) {
       scene.remove(bullets[i]);  //Remove o tiro da cena
       bullets.splice(i, 1);  //Remove do array
       i--;
@@ -262,31 +270,33 @@ function bulletMov() {
 }
 let rngDelay = 2000;
 //let callTurretRNG = setInterval(turretRNG, rngDelay);
-function turretRNG(){
-  for(let i=0; i<map.turrets.length - 1; i++){
+function turretRNG() {
+  for (let i = 0; i < map.turrets.length - 1; i++) {
     let rng = Math.floor(Math.random() * 10);
     //console.log(`${i} - ${rng}`)
-    if (rng<=4){
-      turretFire(i);
+    if (rng <= 4) {
+      if (map.turrets[i].visible && !map.turrets[i].dying) {
+        turretFire(i);
+      }
     }
   }
 }
 let enemyBullets = [];
-function turretFire(index){
-  if (!aircraft){
+function turretFire(index) {
+  if (!aircraft) {
     return;
   }
   let directionEnemy = new THREE.Vector3()
   let bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   let bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(138,43,226)", emissive: "rgb(138,43,226)" });
   let bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-  bullet.scale.set(0.2,0.2,5)
+  bullet.scale.set(0.2, 0.2, 5)
   let turretPos = new THREE.Vector3();
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   map.turrets[index].mesh.getWorldPosition(turretPos);
   directionEnemy.subVectors(posMundoAircraft, turretPos).normalize();
   bullet.velocity = directionEnemy;
-  bullet.velocity.multiplyScalar(2 + map.SPEED); // Muda velocidade do disparo
+  bullet.velocity.multiplyScalar(6 + map.SPEED * 0.2); // Muda velocidade do disparo
   //console.log(bullet.velocity)
   map.turrets[index].mesh.add(bullet); // Faz o disparo sair do avião
   bullet.position.set(0, 0, 0);
@@ -294,16 +304,16 @@ function turretFire(index){
   bullet.lookAt(posMundoAircraft);
   enemyBullets.push(bullet); // Adiciona o disparo no array
   map.turrets[index].mesh.add(enemyBulletSound[index]);
-  if (enemyBulletSound[index].isPlaying){
+  if (enemyBulletSound[index].isPlaying) {
     enemyBulletSound[index].stop();
     enemyBulletSound[index].play();
   }
-  else{
+  else {
     enemyBulletSound[index].play();
   }
 }
 
-function enemyBulletMov(){
+function enemyBulletMov() {
   for (var i = 0; i < enemyBullets.length; i++) {
     enemyBullets[i].position.add(enemyBullets[i].velocity) // Atualiza o movimento dos disparos
 
@@ -314,7 +324,7 @@ function enemyBulletMov(){
       i--;
       continue;
     }
-    if (enemyBullets[i].position.z > map.FADE_END() || enemyBullets[i].position.y < map.MAP_Y/2 || Math.abs(enemyBullets[i].position.x) > map.MAP_X/2) {
+    if (enemyBullets[i].position.z > map.FADE_END() || enemyBullets[i].position.y < map.MAP_Y / 2 || Math.abs(enemyBullets[i].position.x) > map.MAP_X / 2) {
       scene.remove(enemyBullets[i]);  //Remove o tiro da cena
       enemyBullets.splice(i, 1);  //Remove do array
       i--;
@@ -334,10 +344,10 @@ function keyboardUpdate() {
   if (keyboard.down(3)) { map.SPEED = 5 }
   //Music
   if (keyboard.down('S')) {
-    if(!music.isPlaying){
+    if (!music.isPlaying) {
       music.play();
     }
-    else{
+    else {
       music.pause();
     }
   }
@@ -349,66 +359,76 @@ function keyboardUpdate() {
 //Mouse invisibility
 document.body.style.cursor = 'none';
 
-function aircraftDamage(){
+function aircraftDamage() {
   aircraft.add(aircraftDamageSound);
-  if(aircraftDamageSound.isPlaying){
+  if (aircraftDamageSound.isPlaying) {
     aircraftDamageSound.stop();
     aircraftDamageSound.play();
   }
-  else{
+  else {
     aircraftDamageSound.play();
   }
-  aircraftHealth-=1;
+  aircraftHealth -= 1;
   changeObjectColor();
 }
 //Audio
 const listener = new THREE.AudioListener();
-camera.add( listener );
+camera.add(listener);
 let audioLoader = new THREE.AudioLoader();
-const music = new THREE.Audio( listener ); 
-const bulletSound = new THREE.PositionalAudio( listener );
+const music = new THREE.Audio(listener);
+const bulletSound = new THREE.PositionalAudio(listener);
 let enemyBulletSound = [];
 let aircraftDamageSound = new THREE.PositionalAudio( listener );
+let turretDamageSound = [];
 audioLoader.load( './customObjects/mixkit-short-laser-gun-shot-1670.wav', function( buffer ) {
   bulletSound.setBuffer(buffer);
   bulletSound.setLoop = false;
   bulletSound.setVolume(1);
   bulletSound.setRefDistance(1000.0)
 });
-audioLoader.load( './customObjects/raptor-151529.mp3', function( buffer ) {
-	music.setBuffer( buffer );
-	music.setLoop( true );
-	music.setVolume( 0.5 );
+audioLoader.load('./customObjects/raptor-151529.mp3', function (buffer) {
+  music.setBuffer(buffer);
+  music.setLoop(true);
+  music.setVolume(0.5);
   music.hasPlaybackControl = true
-	//sound.play(); // Will play when start button is pressed
+  //sound.play(); // Will play when start button is pressed
 });
 for (let i = 0; i<=2; i++) {
   enemyBulletSound[i] = new THREE.PositionalAudio( listener );
   audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
     enemyBulletSound[i].setBuffer( buffer );
     enemyBulletSound[i].setLoop( false );
-    enemyBulletSound[i].setVolume( 0.5 );
-    enemyBulletSound[i].setRefDistance(500.0);
-  })}
+    enemyBulletSound[i].setVolume( 0.6 );
+    enemyBulletSound[i].setRefDistance(200.0);
+  })
+  turretDamageSound[i] = new THREE.PositionalAudio( listener );
+  audioLoader.load( './customObjects/jar-smash-46764.mp3', function( buffer){
+    turretDamageSound[i].setBuffer(buffer);
+    turretDamageSound[i].setLoop = false;
+    turretDamageSound[i].setVolume(0.3);
+    turretDamageSound[i].setRefDistance(200.0);
+  })
+}
 audioLoader.load( './customObjects/mixkit-truck-crash-with-explosion-1616.wav', function( buffer ) {
   aircraftDamageSound.setBuffer(buffer);
   aircraftDamageSound.setLoop = false;
-  aircraftDamageSound.setVolume(1);
-  aircraftDamageSound.setRefDistance(1000.0)
+  aircraftDamageSound.setVolume(0.2);
+  aircraftDamageSound.setRefDistance(1000.0);
 });
+
 /*audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
-	enemyBulletSound.setBuffer( buffer );
-	enemyBulletSound.setLoop( true );
-	enemyBulletSound.setVolume( 0.5 );
+  enemyBulletSound.setBuffer( buffer );
+  enemyBulletSound.setLoop( true );
+  enemyBulletSound.setVolume( 0.5 );
   enemyBulletSound.setRefDistance(500.0);
 });*/
 
 function changeObjectColor() {
   if (aircraft) {
-     aircraft.traverse(function (child) {
-        if (child.material)
-           child.material.color.set(`rgb(${255},${aircraftHealth*51}, ${aircraftHealth*51})`);
-     });
+    aircraft.traverse(function (child) {
+      if (child.material)
+        child.material.color.set(`rgb(${255},${aircraftHealth * 51}, ${aircraftHealth * 51})`);
+    });
   }
 }
 
@@ -458,10 +478,10 @@ function render() {
     }
 
     updateCamera(aim2, worldAim2Pos, lerpCameraConfig, cameraHolder, camDestination); // Atualiza posição da câmera
-    
+
     keyboardUpdate(); // Atualiza teclado
     rngTimer++;
-    if (rngTimer==121){
+    if (rngTimer == 50) {
       turretRNG();
       rngTimer = 0;
     }
