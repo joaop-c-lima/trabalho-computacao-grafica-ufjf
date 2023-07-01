@@ -245,6 +245,14 @@ function bulletMov() {
         // Verifica se a torreta foi atingida
         if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
           map.turretsDying[j] = true; // Se atingida, status passa sendo destruída
+          map.turrets[j].mesh.add(turretDamageSound[j]); 
+          if(!turretDamageSound[j].isPlaying){
+            turretDamageSound[j].stop();
+            turretDamageSound[j].play();
+          }
+          else{
+            turretDamageSound[j].play();
+          }
         }
       }
     }
@@ -365,6 +373,7 @@ const music = new THREE.Audio( listener );
 const bulletSound = new THREE.PositionalAudio( listener );
 let enemyBulletSound = [];
 let aircraftDamageSound = new THREE.PositionalAudio( listener );
+let turretDamageSound = [];
 audioLoader.load( './customObjects/mixkit-short-laser-gun-shot-1670.wav', function( buffer ) {
   bulletSound.setBuffer(buffer);
   bulletSound.setLoop = false;
@@ -383,15 +392,24 @@ for (let i = 0; i<=2; i++) {
   audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
     enemyBulletSound[i].setBuffer( buffer );
     enemyBulletSound[i].setLoop( false );
-    enemyBulletSound[i].setVolume( 0.5 );
-    enemyBulletSound[i].setRefDistance(500.0);
-  })}
+    enemyBulletSound[i].setVolume( 0.6 );
+    enemyBulletSound[i].setRefDistance(200.0);
+  })
+  turretDamageSound[i] = new THREE.PositionalAudio( listener );
+  audioLoader.load( './customObjects/jar-smash-46764.mp3', function( buffer){
+    turretDamageSound[i].setBuffer(buffer);
+    turretDamageSound[i].setLoop = false;
+    turretDamageSound[i].setVolume(0.3);
+    turretDamageSound[i].setRefDistance(200.0);
+  })
+}
 audioLoader.load( './customObjects/mixkit-truck-crash-with-explosion-1616.wav', function( buffer ) {
   aircraftDamageSound.setBuffer(buffer);
   aircraftDamageSound.setLoop = false;
-  aircraftDamageSound.setVolume(0.3);
-  aircraftDamageSound.setRefDistance(1000.0)
+  aircraftDamageSound.setVolume(0.2);
+  aircraftDamageSound.setRefDistance(1000.0);
 });
+
 /*audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
 	enemyBulletSound.setBuffer( buffer );
 	enemyBulletSound.setLoop( true );
