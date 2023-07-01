@@ -7,10 +7,10 @@ export const TRENCH_GROUND_Y = 0.01;
 export const TRENCH_GROUND_Z = 100.0;
 
 export const TRENCH_WALL_X = 0.01;
-export const TRENCH_WALL_Y = 100.0;
+export const TRENCH_WALL_Y = TRENCH_GROUND_X/2;
 export const TRENCH_WALL_Z = TRENCH_GROUND_Z;
 
-export const UPSIDE_X = 2000.0;
+export const UPSIDE_X = TRENCH_GROUND_X*10;
 export const UPSIDE_Y = 0.01;
 export const UPSIDE_Z = TRENCH_GROUND_Z;
 
@@ -24,11 +24,12 @@ export const MIN_RELIEF_Z = 10;
 
 
 export function getDeathStarSurface() {
-    let trenchGround = getTrenchGround();
-    let trenchWallLeft = getTrenchWall();
-    let trenchWallRight = getTrenchWall();
-    let upsideLeft = getUpside();
-    let upsideRight = getUpside();
+    let material = getMaterial();
+    let trenchGround = getTrenchGround(material);
+    let trenchWallLeft = getTrenchWall(material);
+    let trenchWallRight = getTrenchWall(material);
+    let upsideLeft = getUpside(material);
+    let upsideRight = getUpside(material);
 
     trenchGround.add(trenchWallLeft);
     trenchWallLeft.position.set((TRENCH_GROUND_X + TRENCH_WALL_X) * (-0.5),
@@ -60,27 +61,23 @@ export function getDeathStarSurface() {
 
 }
 
-function getTrenchGround() {
+function getTrenchGround(material) {
     let geometry = new THREE.BoxGeometry(TRENCH_GROUND_X, TRENCH_GROUND_Y, TRENCH_GROUND_Z);
-    let material = getMaterial();
     let mesh = new THREE.Mesh(geometry, material);
     mesh.receiveShadow = true;
     return mesh;
 }
 
-function getTrenchWall() {
+function getTrenchWall(material) {
     let geometry = new THREE.BoxGeometry(TRENCH_WALL_X, TRENCH_WALL_Y, TRENCH_WALL_Z);
-    let material = getMaterial();
     let mesh = new THREE.Mesh(geometry, material);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     return mesh;
 }
 
-function getUpside() {
+function getUpside(material) {
     let geometry = new THREE.BoxGeometry(UPSIDE_X, UPSIDE_Y, UPSIDE_Z);
-    let material = getMaterial();
-    //material.map.repeat.set(10, 1)
     let mesh = new THREE.Mesh(geometry, material);
     mesh.receiveShadow = true;
     return mesh;
@@ -88,25 +85,14 @@ function getUpside() {
 
 export function getMaterial() {
     var textureLoader = new THREE.TextureLoader();
-    let material = new THREE.MeshLambertMaterial({ color: 'lightGray' });
+    let material = new THREE.MeshLambertMaterial({ color: 'darkGray' });
     material.transparent = true;
     material.map = textureLoader.load('./customObjects/death-star-surface.png');
     material.map.wrapS = THREE.RepeatWrapping;
     material.map.wrapT = THREE.RepeatWrapping;
     material.map.minFilter = THREE.LinearFilter;
     material.map.magFilter = THREE.NearestFilter;
-    material.map.repeat.set(1, 1);
+    material.map.repeat.set(3, 3);
 
     return material;
-}
-
-export function getRelief() {
-    let geometry = new THREE.BoxGeometry(getRndInteger(MIN_RELIEF_X, MAX_RELIEF_X),
-        getRndInteger(MIN_RELIEF_Y, MAX_RELIEF_Y),
-        getRndInteger(MIN_RELIEF_Z, MAX_RELIEF_Z));
-    let material = getMaterial();
-    let mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    return mesh;
 }

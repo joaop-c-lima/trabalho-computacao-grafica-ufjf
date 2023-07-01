@@ -39,41 +39,12 @@ export function makeMap() {
         turret: -1
       };
       let map = getDeathStarSurface();
-      let reliefs = [];
       let coordinates;
-      let collision;
-      for (let i = 0; i < getRndInteger(this.MIN_NUM_RELIEF, this.MAX_NUM_RELIEF); i++) {
-        reliefs.push(DSS.getRelief());
-        map.trenchGround.add(reliefs[reliefs.length - 1]);
-        do {
-          coordinates = new THREE.Vector3(getRndInteger(0, (DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE) / 2),
-            (reliefs[reliefs.length - 1].geometry.parameters.height + DSS.TRENCH_GROUND_Y) / 2,
-            getRndInteger(0, (DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE) / 2))
-          collision = false;
-          reliefs.forEach((relief) => {
-            collision = euclideanDistance(relief.position.x, relief.position.z, coordinates.x, coordinates.z) < this.DISTANCE_TOLERANCE;
-            if (collision) {
-              return;
-            }
-          })
-        } while (collision);
-        reliefs[reliefs.length - 1].position.copy(coordinates);
-      }
-
       for (let i = 0; i < this.MAX_TURRET; i++) {
         if (this.turrets[i].loaded && !this.turrets[i].visible && !this.turrets[i].dying && getRndInteger(0, 100) <= this.TURRET_SPAWN_CHANCE) {
-          do {
-            coordinates = new THREE.Vector3(getRndInteger(0, (DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE) / 2),
-              1,
-              getRndInteger(0, (DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE) / 2))
-            collision = false;
-            reliefs.forEach((relief) => {
-              collision = euclideanDistance(relief.position.x, relief.position.z, coordinates.x, coordinates.z) < this.DISTANCE_TOLERANCE;
-              if (collision) {
-                return;
-              }
-            })
-          } while (collision);
+          coordinates = new THREE.Vector3(getRndInteger(0, (DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE) / 2),
+            1,
+            getRndInteger(0, (DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE) / 2))
           map.trenchGround.add(this.turrets[i].mesh);
           this.turrets[i].mesh.visible = true;
           this.turrets[i].visible = true;
@@ -83,7 +54,6 @@ export function makeMap() {
           break;
         }
       }
-
       mapPart.map = map.trenchGround;
       return mapPart;
     },
