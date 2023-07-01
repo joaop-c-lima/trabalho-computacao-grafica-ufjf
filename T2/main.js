@@ -10,6 +10,7 @@ import { makeMap } from './map.js';
 import { makeSun } from './sun.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
+import * as DSS from './deathStarSurface.js';
 
 let scene, renderer, camera, light, lerpCameraConfig,
   aimPosMin, aimPosMax, camDestination, dist, quaternionZ, quaternionXY;
@@ -30,10 +31,10 @@ camera = createCamera();
 let cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
-cameraHolder.position.set(0, 115, -60);
+cameraHolder.position.set(0, (1.1)*DSS.TRENCH_WALL_Y, -60);
 
-aimPosMin = new THREE.Vector3(-235, 10, -1024);
-aimPosMax = new THREE.Vector3(235, 200, 1024);
+aimPosMin = new THREE.Vector3((-0.5)*DSS.TRENCH_GROUND_X+12, 10, -1024);
+aimPosMax = new THREE.Vector3((0.5)*DSS.TRENCH_GROUND_X-12, DSS.TRENCH_WALL_Y*1.50, 1024);
 
 // Create a basic light to illuminate the scene
 let ambientColor = "rgb(150,150,150)";
@@ -89,7 +90,8 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
       if (node.material) node.material.side = THREE.DoubleSide;
     });
     aircraft.scale.set(desiredScale, desiredScale, desiredScale);
-    scene.add(aircraft)
+    aircraft.position.set(0,(1.5)*DSS.TRENCH_WALL_Y,-20);
+    scene.add(aircraft);
   });
 }
 
@@ -152,11 +154,11 @@ function updateAnimation(dist, quaternionZ, quaternionXY) {
 
   //aircraft.lookAt(worldAim2Pos.x, worldAim2Pos.y, worldAim2Pos.z);
   dist = aircraft.position.x - worldAim2Pos.x;
-  if (dist < -100) { dist = -100 };
-  if (dist > 100) { dist = 100 }
+  if (dist < -50) { dist = -50 };
+  if (dist > 50) { dist = 50 }
   //console.log(dist);
   quaternionZ = new THREE.Quaternion();
-  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 33)) / 4);
+  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 16)) / 4);
   aircraft.quaternion.slerp(quaternionZ, 0.029);
 
   //console.log(directionAnim);
@@ -399,7 +401,7 @@ audioLoader.load('./customObjects/mixkit-short-laser-gun-shot-1670.wav', functio
 audioLoader.load('./customObjects/raptor-151529.mp3', function (buffer) {
   music.setBuffer(buffer);
   music.setLoop(true);
-  music.setVolume(0.5);
+  music.setVolume(0.2);
   music.hasPlaybackControl = true
   //sound.play(); // Will play when start button is pressed
 });
@@ -408,7 +410,7 @@ for (let i = 0; i <= 2; i++) {
   audioLoader.load('./customObjects/mixkit-laser-weapon-shot-1681.wav', function (buffer) {
     enemyBulletSound[i].setBuffer(buffer);
     enemyBulletSound[i].setLoop(false);
-    enemyBulletSound[i].setVolume(0.6);
+    enemyBulletSound[i].setVolume(0.5);
     enemyBulletSound[i].setRefDistance(200.0);
   })
   turretDamageSound[i] = new THREE.PositionalAudio(listener);
