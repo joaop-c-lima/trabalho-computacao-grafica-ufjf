@@ -156,7 +156,7 @@ function updateAnimation(dist, quaternionZ, quaternionXY) {
   if (dist > 100) { dist = 100 }
   //console.log(dist);
   quaternionZ = new THREE.Quaternion();
-  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 35)) / 4);
+  quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 33)) / 4);
   aircraft.quaternion.slerp(quaternionZ,0.029);
   
   //console.log(directionAnim);
@@ -282,7 +282,7 @@ function turretFire(index){
   map.turrets[index].mesh.getWorldPosition(turretPos);
   directionEnemy.subVectors(posMundoAircraft, turretPos).normalize();
   bullet.velocity = directionEnemy;
-  bullet.velocity.multiplyScalar(2 + map.SPEED); // Muda velocidade do disparo
+  bullet.velocity.multiplyScalar(6 + map.SPEED*0.2); // Muda velocidade do disparo
   //console.log(bullet.velocity)
   map.turrets[index].mesh.add(bullet); // Faz o disparo sair do avião
   bullet.position.set(0, 0, 0);
@@ -389,7 +389,7 @@ for (let i = 0; i<=2; i++) {
 audioLoader.load( './customObjects/mixkit-truck-crash-with-explosion-1616.wav', function( buffer ) {
   aircraftDamageSound.setBuffer(buffer);
   aircraftDamageSound.setLoop = false;
-  aircraftDamageSound.setVolume(1);
+  aircraftDamageSound.setVolume(0.3);
   aircraftDamageSound.setRefDistance(1000.0)
 });
 /*audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
