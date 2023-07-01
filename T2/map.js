@@ -43,11 +43,11 @@ export function makeMap() {
       let coordinates;
       let collision;
       for (let i = 0; i < getRndInteger(this.MIN_NUM_RELIEF, this.MAX_NUM_RELIEF); i++) {
-        reliefs.push(new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), DSS.getMaterial()));
+        reliefs.push(DSS.getRelief());
         map.trenchGround.add(reliefs[reliefs.length - 1]);
         do {
           coordinates = new THREE.Vector3(getRndInteger(0, (DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_X - this.DISTANCE_TOLERANCE) / 2),
-            (10 + DSS.TRENCH_GROUND_Y) / 2,
+            (reliefs[reliefs.length - 1].geometry.parameters.height + DSS.TRENCH_GROUND_Y) / 2,
             getRndInteger(0, (DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE)) - ((DSS.TRENCH_GROUND_Z - this.DISTANCE_TOLERANCE) / 2))
           collision = false;
           reliefs.forEach((relief) => {
@@ -141,7 +141,6 @@ export function makeMap() {
             }
           });
           if (dead) {
-            console.log("OPA")
             this.turrets[i].dying = false;
             this.turrets[i].visible = false;
             this.turrets[i].mesh.visible = false;

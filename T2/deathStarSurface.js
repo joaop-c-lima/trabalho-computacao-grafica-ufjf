@@ -14,6 +14,12 @@ export const UPSIDE_X = 2000.0;
 export const UPSIDE_Y = 0.01;
 export const UPSIDE_Z = TRENCH_GROUND_Z;
 
+export const MAX_RELIEF_X = 20;
+export const MIN_RELIEF_X = 10;
+export const MAX_RELIEF_Y = 3;
+export const MIN_RELIEF_Y = 1;
+export const MAX_RELIEF_Z = 20;
+export const MIN_RELIEF_Z = 10;
 
 
 
@@ -74,7 +80,7 @@ function getTrenchWall() {
 function getUpside() {
     let geometry = new THREE.BoxGeometry(UPSIDE_X, UPSIDE_Y, UPSIDE_Z);
     let material = getMaterial();
-    material.map.repeat.set(10,1)
+    //material.map.repeat.set(10, 1)
     let mesh = new THREE.Mesh(geometry, material);
     mesh.receiveShadow = true;
     return mesh;
@@ -92,4 +98,15 @@ export function getMaterial() {
     material.map.repeat.set(1, 1);
 
     return material;
+}
+
+export function getRelief() {
+    let geometry = new THREE.BoxGeometry(getRndInteger(MIN_RELIEF_X, MAX_RELIEF_X),
+        getRndInteger(MIN_RELIEF_Y, MAX_RELIEF_Y),
+        getRndInteger(MIN_RELIEF_Z, MAX_RELIEF_Z));
+    let material = getMaterial();
+    let mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    return mesh;
 }
