@@ -10,16 +10,13 @@ export const TRENCH_WALL_X = 0.01;
 export const TRENCH_WALL_Y = TRENCH_GROUND_X/2;
 export const TRENCH_WALL_Z = TRENCH_GROUND_Z;
 
-export const UPSIDE_X = TRENCH_GROUND_X*10;
+export const UPSIDE_X = TRENCH_GROUND_X;
 export const UPSIDE_Y = 0.01;
 export const UPSIDE_Z = TRENCH_GROUND_Z;
 
-export const MAX_RELIEF_X = 20;
-export const MIN_RELIEF_X = 10;
-export const MAX_RELIEF_Y = 3;
-export const MIN_RELIEF_Y = 1;
-export const MAX_RELIEF_Z = 20;
-export const MIN_RELIEF_Z = 10;
+export const CUBE_RELIEF = 10;
+export const CYLINDER_RADIUS_RELIEF = 10;
+export const CYLINDER_HEIGHT_RELIEF = 10;
 
 
 
@@ -73,6 +70,18 @@ function getTrenchWall(material) {
     let mesh = new THREE.Mesh(geometry, material);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+    let cube1 = getCubeRelief(material);
+    mesh.add(cube1);
+    cube1.position.set(0,(TRENCH_WALL_Y - CUBE_RELIEF)/2, (TRENCH_WALL_Z)*(-0.25));
+
+    let cube2 = getCubeRelief(material);
+    mesh.add(cube2);
+    cube2.position.set(0,(TRENCH_WALL_Y - CUBE_RELIEF)/2, (TRENCH_WALL_Z)*(0.25));
+
+    let cylinder1 = cylinderRelief(material);
+    mesh.add(cylinder1);
+    cylinder1.position.set(0,0, 0);
+
     return mesh;
 }
 
@@ -95,4 +104,17 @@ export function getMaterial() {
     material.map.repeat.set(3, 3);
 
     return material;
+}
+
+export function getCubeRelief(material){
+    let geometry = new THREE.BoxGeometry(CUBE_RELIEF, CUBE_RELIEF, CUBE_RELIEF);
+    let mesh = new THREE.Mesh(geometry, material);
+    return mesh;
+}
+
+export function cylinderRelief(material){
+    let geometry = new THREE.CylinderGeometry(CYLINDER_RADIUS_RELIEF,CYLINDER_RADIUS_RELIEF,CYLINDER_HEIGHT_RELIEF,16);
+    let mesh = new THREE.Mesh(geometry, material);
+    mesh.rotateZ(THREE.MathUtils.degToRad(90));
+    return mesh;
 }
