@@ -210,13 +210,13 @@ function bulletMov() {
   for (var i = 0; i < bullets.length; i++) {
     bullets[i].position.add(bullets[i].velocity) // Atualiza o movimento dos disparos
     for (var j = 0; j < map.MAX_TURRET; j++) {
-      if (!map.turrets[j].turretsDying && map.turrets[j].visible ) {
+      if (!map.turrets[j].dying && map.turrets[j].visible ) {
         turretV = new THREE.Vector3();
         map.turrets[j].mesh.getWorldPosition(turretV) // Armazena a posição global das torretas
 
         // Verifica se a torreta foi atingida
         if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
-          map.turretsDying[j] = true; // Se atingida, status passa sendo destruída
+          map.turrets[j].dying = true; // Se atingida, status passa sendo destruída
         }
       }
     }

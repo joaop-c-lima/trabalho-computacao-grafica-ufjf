@@ -244,7 +244,7 @@ function bulletMov() {
 
         // Verifica se a torreta foi atingida
         if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
-          map.turretsDying[j] = true; // Se atingida, status passa sendo destruída
+          map.turrets[j].dying = true; // Se atingida, status passa sendo destruída
           map.turrets[j].mesh.add(turretDamageSound[j]); 
           if(!turretDamageSound[j].isPlaying){
             turretDamageSound[j].stop();
