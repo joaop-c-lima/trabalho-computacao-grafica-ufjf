@@ -242,29 +242,38 @@ function bulletMov() {
         turretV = new THREE.Vector3();
         map.turrets[j].mesh.getWorldPosition(turretV) // Armazena a posição global das torretas
 
-        // Verifica se a torreta foi atingida
-        if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
-          map.turrets[j].dying = true; // Se atingida, status passa sendo destruída
-          scene.remove(bullets[i]);  //Remove o tiro da cena
-          bullets.splice(i, 1);  //Remove do array
-          i--;
-          map.turrets[j].mesh.add(turretDamageSound[j]); 
-          if(!turretDamageSound[j].isPlaying){
-            turretDamageSound[j].stop();
-            turretDamageSound[j].play();
+        if (bullets.length != 0) {
+          // Verifica se a torreta foi atingida
+          if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
+            map.turrets[j].dying = true; // Se atingida, status passa sendo destruída
+            scene.remove(bullets[i]);  //Remove o tiro da cena
+            bullets.splice(i, 1);  //Remove do array
+            i--;
+            map.turrets[j].mesh.add(turretDamageSound[j]);
+            if (!turretDamageSound[j].isPlaying) {
+              turretDamageSound[j].stop();
+              turretDamageSound[j].play();
+            }
+            else {
+              turretDamageSound[j].play();
+            }
           }
-          else{
-            turretDamageSound[j].play();
-          }
+        }
+        else {
           continue;
         }
       }
     }
 
-    if (bullets[i].position.z > map.FADE_END() || bullets[i].position.y < map.MAP_Y / 2 || Math.abs(bullets[i].position.x) > map.MAP_X / 2) {
-      scene.remove(bullets[i]);  //Remove o tiro da cena
-      bullets.splice(i, 1);  //Remove do array
-      i--;
+    if (bullets.length != 0) {
+      if (bullets[i].position.z > map.FADE_END() || bullets[i].position.y < map.MAP_Y / 2 || Math.abs(bullets[i].position.x) > map.MAP_X / 2) {
+        scene.remove(bullets[i]);  //Remove o tiro da cena
+        bullets.splice(i, 1);  //Remove do array
+        i--;
+      }
+    }
+    else {
+      continue;
     }
   }
 }
@@ -378,9 +387,9 @@ let audioLoader = new THREE.AudioLoader();
 const music = new THREE.Audio(listener);
 const bulletSound = new THREE.PositionalAudio(listener);
 let enemyBulletSound = [];
-let aircraftDamageSound = new THREE.PositionalAudio( listener );
+let aircraftDamageSound = new THREE.PositionalAudio(listener);
 let turretDamageSound = [];
-audioLoader.load( './customObjects/mixkit-short-laser-gun-shot-1670.wav', function( buffer ) {
+audioLoader.load('./customObjects/mixkit-short-laser-gun-shot-1670.wav', function (buffer) {
   bulletSound.setBuffer(buffer);
   bulletSound.setLoop = false;
   bulletSound.setVolume(1);
@@ -393,23 +402,23 @@ audioLoader.load('./customObjects/raptor-151529.mp3', function (buffer) {
   music.hasPlaybackControl = true
   //sound.play(); // Will play when start button is pressed
 });
-for (let i = 0; i<=2; i++) {
-  enemyBulletSound[i] = new THREE.PositionalAudio( listener );
-  audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
-    enemyBulletSound[i].setBuffer( buffer );
-    enemyBulletSound[i].setLoop( false );
-    enemyBulletSound[i].setVolume( 0.6 );
+for (let i = 0; i <= 2; i++) {
+  enemyBulletSound[i] = new THREE.PositionalAudio(listener);
+  audioLoader.load('./customObjects/mixkit-laser-weapon-shot-1681.wav', function (buffer) {
+    enemyBulletSound[i].setBuffer(buffer);
+    enemyBulletSound[i].setLoop(false);
+    enemyBulletSound[i].setVolume(0.6);
     enemyBulletSound[i].setRefDistance(200.0);
   })
-  turretDamageSound[i] = new THREE.PositionalAudio( listener );
-  audioLoader.load( './customObjects/jar-smash-46764.mp3', function( buffer){
+  turretDamageSound[i] = new THREE.PositionalAudio(listener);
+  audioLoader.load('./customObjects/jar-smash-46764.mp3', function (buffer) {
     turretDamageSound[i].setBuffer(buffer);
     turretDamageSound[i].setLoop = false;
     turretDamageSound[i].setVolume(0.3);
     turretDamageSound[i].setRefDistance(200.0);
   })
 }
-audioLoader.load( './customObjects/mixkit-truck-crash-with-explosion-1616.wav', function( buffer ) {
+audioLoader.load('./customObjects/mixkit-truck-crash-with-explosion-1616.wav', function (buffer) {
   aircraftDamageSound.setBuffer(buffer);
   aircraftDamageSound.setLoop = false;
   aircraftDamageSound.setVolume(0.2);
@@ -466,7 +475,6 @@ function render() {
     map.updateMapQueue(scene); // Atualiza a fila de mapas
     //aim2.getWorldPosition(worldAim2Pos); // Atualiza a posição global da mira
     aim.getWorldPosition(worldAimPos);
-    console.log(aircraftHealth);  
     updateAim(); // Atualiza mira
     if (aircraft) {
       updatePosition(); // Atualiza posição do avião
@@ -474,6 +482,10 @@ function render() {
 
       if (enemyBullets != null) {
         enemyBulletMov();
+      }
+
+      if (bullets != null) {
+        bulletMov();
       }
     }
 
@@ -487,7 +499,6 @@ function render() {
     }
     //turretRNG();
     //Realiza o movimento dos tiros e excluí da cena
-    bulletMov();
   }
 
 }
