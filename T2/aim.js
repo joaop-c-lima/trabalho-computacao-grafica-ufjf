@@ -13,7 +13,7 @@ export function createAim(){
     //Transforming in a Geometry
     var geometry = new THREE.BufferGeometry().setFromPoints(vertices);
     //Setting material
-    var material = new THREE.LineBasicMaterial( { color: 0xffffff } );
+    var material = new THREE.LineBasicMaterial( { color: "rgb(0,255,0)" } );
     //Drawing the geometry
     var crosshair = new THREE.Line( geometry, material );
 
