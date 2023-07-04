@@ -73,7 +73,7 @@ function onMouseMove(event) {
 }
 
 //Carrega o avião e o adiciona à cena
-loadGLBFile('./customObjects/', 'aviao', true, 2);
+loadGLBFile('./customObjects/', 'xwing', true, 3);
 
 function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
   var loader = new GLTFLoader();
@@ -284,6 +284,9 @@ let rngDelay = 2000;
 //let callTurretRNG = setInterval(turretRNG, rngDelay);
 function turretRNG() {
   for (let i = 0; i < map.turrets.length - 1; i++) {
+    if (!map.turrets[i].loaded){
+      return;
+    }
     let rng = Math.floor(Math.random() * 10);
     //console.log(`${i} - ${rng}`)
     if (rng <= 4) {
@@ -295,9 +298,15 @@ function turretRNG() {
 }
 let enemyBullets = [];
 function turretFire(index) {
+  
+  if (!map.turrets[index].visible || map.turrets[index].dying){
+    return;
+  }
+  
   if (!aircraft) {
     return;
   }
+  map.turrets[index].mesh.add(enemyBulletSound[index]);
   let directionEnemy = new THREE.Vector3()
   let bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   let bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(138,43,226)", emissive: "rgb(138,43,226)" });
@@ -306,6 +315,7 @@ function turretFire(index) {
   let turretPos = new THREE.Vector3();
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   map.turrets[index].mesh.getWorldPosition(turretPos);
+  //enemyBulletSound[index].position.set(turretPos);
   directionEnemy.subVectors(posMundoAircraft, turretPos).normalize();
   bullet.velocity = directionEnemy;
   bullet.velocity.multiplyScalar(6 + map.SPEED * 0.2); // Muda velocidade do disparo
@@ -315,14 +325,17 @@ function turretFire(index) {
   scene.attach(bullet)  // Adiciona o disparo à cena
   bullet.lookAt(posMundoAircraft);
   enemyBullets.push(bullet); // Adiciona o disparo no array
-  map.turrets[index].mesh.add(enemyBulletSound[index]);
+  
   if (enemyBulletSound[index].isPlaying) {
     enemyBulletSound[index].stop();
     enemyBulletSound[index].play();
   }
   else {
-    enemyBulletSound[index].play();
+    enemyBulletSound[index].play(); 
   }
+  /*let soundPos = new THREE.Vector3();
+  enemyBulletSound[index].getWorldPosition(soundPos);
+  console.log(soundPos);*/
 }
 
 function enemyBulletMov() {
@@ -420,6 +433,7 @@ for (let i = 0; i <= 2; i++) {
     turretDamageSound[i].setVolume(0.3);
     turretDamageSound[i].setRefDistance(200.0);
   })
+  
 }
 audioLoader.load('./customObjects/mixkit-truck-crash-with-explosion-1616.wav', function (buffer) {
   aircraftDamageSound.setBuffer(buffer);
