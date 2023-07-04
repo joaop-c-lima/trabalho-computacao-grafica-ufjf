@@ -19,8 +19,8 @@ export function makeSun() {
     sunLight.position.copy(SUN_POSITION);
     sunLight.castShadow = true;
     sunLight.intensity = 1
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.mapSize.width = 4*1024;
+    sunLight.shadow.mapSize.height = 4*1024;
     sunLight.shadow.camera.near = 1;
     sunLight.shadow.camera.far = 1000;
     sunLight.shadow.camera.left = -1000;

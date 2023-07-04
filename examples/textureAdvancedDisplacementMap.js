@@ -17,9 +17,9 @@ window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)},
 
 // Create main object
 let geom = new THREE.CylinderGeometry(10, 10, 20, 200, 200, true);
-let colormap = 	new THREE.TextureLoader().load("../assets/textures/displacement/Stylized_blocks_001_basecolor.jpg");
-let normalmap = new THREE.TextureLoader().load("../assets/textures/displacement/Stylized_blocks_001_normal.jpg");
-let dispmap = 	new THREE.TextureLoader().load("../assets/textures/displacement/Stylized_blocks_001_height.png");
+let colormap = 	new THREE.TextureLoader().load("../T2/customObjects/death-star-surface-textures/ao.png");
+let normalmap = new THREE.TextureLoader().load("../T2/customObjects/death-star-surface-textures/normal-ogl.png");
+let dispmap = 	new THREE.TextureLoader().load("../T2/customObjects/death-star-surface-textures/height.png");
 
 let mat = new THREE.MeshStandardMaterial({
 	side: THREE.DoubleSide,
