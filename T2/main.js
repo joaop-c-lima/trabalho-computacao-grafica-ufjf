@@ -18,13 +18,13 @@ let aircraft;
 let worldAimPos = new THREE.Vector3; // Initial variables
 let worldAim2Pos = new THREE.Vector3;
 let fireListener = true;      // Evitar que o click para sair do pause chame firebullet()
-//var direction = new THREE.Vector3();
 let directionAnim = new THREE.Vector3();
 let posMundoAircraft = new THREE.Vector3(0, 0, 0);
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 let keyboard = new KeyboardState(); //Variável para o teclado
 let aircraftHealth = 5;
+let rngTimer = 0;
 
 //Camera parameters
 camera = createCamera();
@@ -98,9 +98,7 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
 //Update Position
 function updatePosition() {
   lerpConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 0);
-  //lerpAimConfig.destination.set(worldAim2Pos.x, worldAim2Pos.y, 160);
   if (lerpConfig) { aircraft.position.lerp(lerpConfig.destination, lerpConfig.alpha) }
-  //if (lerpAimConfig) { aim.position.lerp((lerpAimConfig.destination), lerpAimConfig.alpha) }
 }
 
 //Lerp Config
@@ -110,30 +108,20 @@ const lerpConfig = {
   move: true
 }
 
-/*const lerpAimConfig = {
-  destination: new THREE.Vector3(0, 55, 0),
-  alpha: 0.01,
-  move: true
-}*/
 
 //Create aim
 let aim = createAim();
 let aim2 = createAim();
 scene.add(aim)
-//aim.translateZ(160)
 raycasterPlane.add(aim2);
 
 //Plano mira grande
 let nearAimPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 160);
-//nearAimPlane.visible = true;
-//scene.add(nearAimPlane);
-//nearAimPlane.position.set(0, 0, aim.position.z);
 
 //Update Aim
 function updateAim() {
   scene.attach(aim2);
   aim2.position.clamp(aimPosMin, aimPosMax);
-  //  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
   cameraHolder.attach(aim2);
   if (!aircraft) {
     return;
@@ -143,33 +131,23 @@ function updateAim() {
   let intersectPoint = new THREE.Vector3();
   nearAimPlane.intersectLine(lineAircraftAim, intersectPoint);
   aim.position.set(intersectPoint.x, intersectPoint.y, intersectPoint.z);
-  //aim.position.y.set(intersectPoint.y);
-  //aim.position.z.set(intersectPoint.z);
-  //console.log(aim.position)
-  //console.log(nearAimPlane.intersectLine(lineAircraftAim).y);
 }
 
 //Update Animation
 function updateAnimation(dist, quaternionZ, quaternionXY) {
 
-  //aircraft.lookAt(worldAim2Pos.x, worldAim2Pos.y, worldAim2Pos.z);
   dist = aircraft.position.x - worldAim2Pos.x;
   if (dist < -50) { dist = -50 };
   if (dist > 50) { dist = 50 }
-  //console.log(dist);
   quaternionZ = new THREE.Quaternion();
   quaternionZ.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (Math.PI * (dist / 16)) / 4);
   aircraft.quaternion.slerp(quaternionZ, 0.029);
 
-  //console.log(directionAnim);
-  //aircraft.applyQuaternion(quaternionZ);
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   directionAnim.subVectors(worldAim2Pos, posMundoAircraft).normalize();  // Calcula direção do avião até a mira
   let matrixQuat = new THREE.Matrix4().lookAt(worldAim2Pos, posMundoAircraft, new THREE.Vector3(0, 0, 0));
-  //console.log(mx)
   quaternionXY = new THREE.Quaternion().setFromRotationMatrix(matrixQuat);
   aircraft.quaternion.slerp(quaternionXY, 0.1);
-  //aircraft.applyQuaternion(quaternionXY);
 
 }
 
@@ -212,7 +190,7 @@ function fireBullet() {
   var bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   var bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(255,0,0)", emissive: "rgb(255,0,0)" });
   var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-  bullet.scale.set(1, 1, 15);
+  bullet.scale.set(1, 1, 10);
 
 
   //let posMundoAim = new THREE.Vector3(0, 0, 0);
@@ -246,7 +224,7 @@ function bulletMov() {
 
         if (bullets.length != 0) {
           // Verifica se a torreta foi atingida
-          if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y, turretV.z) < map.DISTANCE_TOLERANCE) {
+          if (euclideanDistance(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z, turretV.x, turretV.y+30, turretV.z) < map.DISTANCE_TOLERANCE) {
             map.turrets[j].dying = true; // Se atingida, status passa sendo destruída
             scene.remove(bullets[i]);  //Remove o tiro da cena
             bullets.splice(i, 1);  //Remove do array
@@ -280,16 +258,14 @@ function bulletMov() {
     }
   }
 }
-let rngDelay = 2000;
-//let callTurretRNG = setInterval(turretRNG, rngDelay);
+
 function turretRNG() {
-  for (let i = 0; i < map.turrets.length - 1; i++) {
+  for (let i = 0; i <=2; i++) {
     if (!map.turrets[i].loaded){
       return;
     }
     let rng = Math.floor(Math.random() * 10);
-    //console.log(`${i} - ${rng}`)
-    if (rng <= 4) {
+    if (rng <= 6) {
       if (map.turrets[i].visible && !map.turrets[i].dying) {
         turretFire(i);
       }
@@ -299,29 +275,25 @@ function turretRNG() {
 let enemyBullets = [];
 function turretFire(index) {
   
-  if (!map.turrets[index].visible || map.turrets[index].dying){
+  if (!map.turrets[index].visible || map.turrets[index].dying || !aircraft){
     return;
   }
   
-  if (!aircraft) {
-    return;
-  }
   map.turrets[index].mesh.add(enemyBulletSound[index]);
   let directionEnemy = new THREE.Vector3()
   let bulletGeometry = new THREE.SphereGeometry(0.3, 8, 8);
   let bulletMaterial = new THREE.MeshStandardMaterial({ color: "rgb(138,43,226)", emissive: "rgb(138,43,226)" });
   let bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-  bullet.scale.set(0.2, 0.2, 5)
+  bullet.scale.set(0.3, 0.3, 5)
   let turretPos = new THREE.Vector3();
   aircraft.getWorldPosition(posMundoAircraft);  // Pega posição global do aviao
   map.turrets[index].mesh.getWorldPosition(turretPos);
-  //enemyBulletSound[index].position.set(turretPos);
+  turretPos.y += 40;
   directionEnemy.subVectors(posMundoAircraft, turretPos).normalize();
   bullet.velocity = directionEnemy;
   bullet.velocity.multiplyScalar(6 + map.SPEED * 0.2); // Muda velocidade do disparo
-  //console.log(bullet.velocity)
   map.turrets[index].mesh.add(bullet); // Faz o disparo sair do avião
-  bullet.position.set(0, 0, 0);
+  bullet.position.set(0, 40/15, 0);
   scene.attach(bullet)  // Adiciona o disparo à cena
   bullet.lookAt(posMundoAircraft);
   enemyBullets.push(bullet); // Adiciona o disparo no array
@@ -333,9 +305,6 @@ function turretFire(index) {
   else {
     enemyBulletSound[index].play(); 
   }
-  /*let soundPos = new THREE.Vector3();
-  enemyBulletSound[index].getWorldPosition(soundPos);
-  console.log(soundPos);*/
 }
 
 function enemyBulletMov() {
@@ -414,9 +383,8 @@ audioLoader.load('./customObjects/mixkit-short-laser-gun-shot-1670.wav', functio
 audioLoader.load('./customObjects/raptor-151529.mp3', function (buffer) {
   music.setBuffer(buffer);
   music.setLoop(true);
-  music.setVolume(0.2);
+  music.setVolume(0.15);
   music.hasPlaybackControl = true
-  //sound.play(); // Will play when start button is pressed
 });
 for (let i = 0; i <= 2; i++) {
   enemyBulletSound[i] = new THREE.PositionalAudio(listener);
@@ -424,30 +392,23 @@ for (let i = 0; i <= 2; i++) {
     enemyBulletSound[i].setBuffer(buffer);
     enemyBulletSound[i].setLoop(false);
     enemyBulletSound[i].setVolume(0.5);
-    enemyBulletSound[i].setRefDistance(200.0);
+    enemyBulletSound[i].setRefDistance(350.0);
   })
   turretDamageSound[i] = new THREE.PositionalAudio(listener);
-  audioLoader.load('./customObjects/jar-smash-46764.mp3', function (buffer) {
+  audioLoader.load('./customObjects/587196__derplayer__explosion_06.ogg', function (buffer) {
     turretDamageSound[i].setBuffer(buffer);
     turretDamageSound[i].setLoop = false;
-    turretDamageSound[i].setVolume(0.3);
-    turretDamageSound[i].setRefDistance(200.0);
+    turretDamageSound[i].setVolume(0.4);
+    turretDamageSound[i].setRefDistance(350.0);
   })
   
 }
-audioLoader.load('./customObjects/mixkit-truck-crash-with-explosion-1616.wav', function (buffer) {
+audioLoader.load('./customObjects/682438__feliusers__impacts-crash-metal.mp3', function (buffer) {
   aircraftDamageSound.setBuffer(buffer);
   aircraftDamageSound.setLoop = false;
-  aircraftDamageSound.setVolume(0.2);
+  aircraftDamageSound.setVolume(0.5);
   aircraftDamageSound.setRefDistance(1000.0);
 });
-
-/*audioLoader.load( './customObjects/mixkit-laser-weapon-shot-1681.wav', function( buffer ) {
-  enemyBulletSound.setBuffer( buffer );
-  enemyBulletSound.setLoop( true );
-  enemyBulletSound.setVolume( 0.5 );
-  enemyBulletSound.setRefDistance(500.0);
-});*/
 
 function changeObjectColor() {
   if (aircraft) {
@@ -459,7 +420,6 @@ function changeObjectColor() {
 }
 
 
-let rngTimer = 0;
 render();
 function render() {
   if (isPaused) { // Pause Ativo
@@ -467,30 +427,27 @@ function render() {
     requestAnimationFrame(render);
     if (fireListener) {
       aim.visible = false;
+      aim2.visible = false;
       renderer.render(scene, camera);
       document.removeEventListener("click", fireBullet);
       document.addEventListener('click', function () { isPaused = false });
       fireListener = false; // Desativa os disparos
-      //clearInterval(callTurretRNG)
-      //console.log("clear")
     }
 
   } else {
     if (!fireListener) {
       aim.visible = true;
+      aim2.visible = true;
       document.addEventListener("click", fireBullet);
       //Mouse invisibility
       document.body.style.cursor = 'none';
       fireListener = true; // Ativa os disparos
-      //callTurretRNG = setInterval(turretRNG, rngDelay);
-      //console.log("resume")
     }
 
     //Render scene
     requestAnimationFrame(render);
     renderer.render(scene, camera)
     map.updateMapQueue(scene); // Atualiza a fila de mapas
-    //aim2.getWorldPosition(worldAim2Pos); // Atualiza a posição global da mira
     aim.getWorldPosition(worldAimPos);
     updateAim(); // Atualiza mira
     if (aircraft) {
@@ -510,12 +467,10 @@ function render() {
 
     keyboardUpdate(); // Atualiza teclado
     rngTimer++;
-    if (rngTimer == 50) {
+    if (rngTimer == 180) {
       turretRNG();
       rngTimer = 0;
     }
-    //turretRNG();
-    //Realiza o movimento dos tiros e excluí da cena
   }
 
 }

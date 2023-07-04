@@ -20,7 +20,7 @@ export function makeMap() {
     FADE_START: 500,
     FADE_END: function () { return (this.NUM_MAX_MAP - 2) * DSS.TRENCH_GROUND_Z },
     MAX_TURRET: 3,
-    DISTANCE_TOLERANCE: 20,
+    DISTANCE_TOLERANCE: 25,
     TURRET_SPAWN_CHANCE: 30,
     TURRET_MAX_HP: 5,
     DEATH_FADE_SPEED: 0.5,
@@ -89,7 +89,7 @@ export function makeMap() {
             this.turrets[i].dying = false;
             this.turrets[i].visible = false;
             this.turrets[i].mesh.visible = false;
-            this.turrets[i].mesh.scale.set(10,10,10);
+            this.turrets[i].mesh.scale.set(15,15,15);
             for (let j = 0; j < this.NUM_MAX_MAP; j++) {
               if (this.queue[j].turret == i) {
                 this.queue[j].turret = -1;
@@ -149,7 +149,7 @@ export function makeMap() {
           node.material.opacity = 0;
         }
       });
-      map.turrets[i].mesh.scale.set(10, 10, 10);
+      map.turrets[i].mesh.scale.set(15, 15, 15);
       map.turrets[i].mesh.name = "TURRET";
       map.turrets[i].mesh.rotateY(Math.PI / 2);
       map.turrets[i].loaded = true;
