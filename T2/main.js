@@ -84,6 +84,7 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
     aircraft.traverse(function (child) {
       if (child) {
         child.castShadow = true;
+        child.receiveShadow = true;
       }
     });
     aircraft.traverse(function (node) {
