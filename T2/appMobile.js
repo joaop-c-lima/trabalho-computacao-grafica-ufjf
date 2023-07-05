@@ -72,6 +72,7 @@ function loadGLBFile(modelPath, modelName, visibility, desiredScale) {
     aircraft.traverse(function (child) {
       if (child) {
         child.castShadow = true;
+        child.receiveShadow = true;
       }
     });
     aircraft.traverse(function (node) {
@@ -354,7 +355,7 @@ audioLoader.load('./customObjects/mixkit-short-laser-gun-shot-1670.wav', functio
 audioLoader.load('./customObjects/raptor-151529.mp3', function (buffer) {
   music.setBuffer(buffer);
   music.setLoop(true);
-  music.setVolume(0.15);
+  music.setVolume(0.32);
   music.hasPlaybackControl = true
 });
 for (let i = 0; i <= 2; i++) {
@@ -362,14 +363,14 @@ for (let i = 0; i <= 2; i++) {
   audioLoader.load('./customObjects/mixkit-laser-weapon-shot-1681.wav', function (buffer) {
     enemyBulletSound[i].setBuffer(buffer);
     enemyBulletSound[i].setLoop(false);
-    enemyBulletSound[i].setVolume(0.5);
+    enemyBulletSound[i].setVolume(1.0);
     enemyBulletSound[i].setRefDistance(350.0);
   })
   turretDamageSound[i] = new THREE.PositionalAudio(listener);
   audioLoader.load('./customObjects/587196__derplayer__explosion_06.ogg', function (buffer) {
     turretDamageSound[i].setBuffer(buffer);
     turretDamageSound[i].setLoop = false;
-    turretDamageSound[i].setVolume(0.4);
+    turretDamageSound[i].setVolume(0.9);
     turretDamageSound[i].setRefDistance(350.0);
   })
   
@@ -377,7 +378,7 @@ for (let i = 0; i <= 2; i++) {
 audioLoader.load('./customObjects/682438__feliusers__impacts-crash-metal.mp3', function (buffer) {
   aircraftDamageSound.setBuffer(buffer);
   aircraftDamageSound.setLoop = false;
-  aircraftDamageSound.setVolume(0.5);
+  aircraftDamageSound.setVolume(1.0);
   aircraftDamageSound.setRefDistance(1000.0);
 });
 
