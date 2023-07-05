@@ -59,21 +59,6 @@ raycasterPlane.position.set(0, 0, 0);
 cameraHolder.add(raycasterPlane);
 raycasterPlane.translateZ((-cameraHolder.position.z) + 500)
 objects.push(raycasterPlane);
-/*window.addEventListener('mousemove', onMouseMove);
-function onMouseMove(event) {
-  let point;
-  let pointer = new THREE.Vector2();
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(pointer, camera);
-  let intersects = raycaster.intersectObjects(objects);
-  point = intersects[0].point;
-  point.clamp(aimPosMin, aimPosMax);
-  scene.attach(aim2);
-  aim2.position.set(point.x, point.y, 500);
-  cameraHolder.attach(aim2);
-
-}*/
 
 //Carrega o avião e o adiciona à cena
 loadGLBFile('./customObjects/', 'xwing', true, 3);
@@ -120,21 +105,6 @@ raycasterPlane.add(aim2);
 
 //Plano mira grande
 let nearAimPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 160);
-
-//Update Aim
-/*function updateAim() {
-  scene.attach(aim2);
-  aim2.position.clamp(aimPosMin, aimPosMax);
-  cameraHolder.attach(aim2);
-  if (!aircraft) {
-    return;
-  }
-  aim2.getWorldPosition(worldAim2Pos);
-  let lineAircraftAim = new THREE.Line3(aircraft.position, worldAim2Pos);
-  let intersectPoint = new THREE.Vector3();
-  nearAimPlane.intersectLine(lineAircraftAim, intersectPoint);
-  aim.position.set(intersectPoint.x, intersectPoint.y, intersectPoint.z);
-}*/
 
 //Update Animation
 function updateAnimation(dist, quaternionZ, quaternionXY) {
@@ -328,8 +298,6 @@ function enemyBulletMov() {
     }
   }
 }
-//Listener do Tiro (Botão esquerdo do mouse)
-//document.addEventListener("click", fireBullet);
 
 function keyboardUpdate() {
 
@@ -428,10 +396,6 @@ let rgtValue = 0;
 let lftValue = 0;
 
 function addJoysticks(){
-   
-    // Details in the link bellow:
-    // https://yoannmoi.net/nipplejs/
-  
     let joystickL = nipplejs.create({
       zone: document.getElementById('joystickWrapper1'),
       mode: 'static',
@@ -470,7 +434,6 @@ function updateAim() {
   aim2.position.x -= rgtValue*4;
   aim2.position.x += lftValue*4;
   aim2.position.clamp(aimPosMin, aimPosMax);
-//  aim2.position.set(aim.position.x,aim.position.y,aim.position.z+60);
   cameraHolder.attach(aim2);
   if (!aircraft) {
     return;
