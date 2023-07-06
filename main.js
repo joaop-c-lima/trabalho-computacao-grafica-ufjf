@@ -3,13 +3,13 @@ import {
   initRenderer,
   initDefaultBasicLight,
   onWindowResize
-} from "../libs/util/util.js";
+} from "./libs/util/util.js";
 import { createCamera, updateCamera } from './camera.js';
 import { createAim } from './aim.js';
 import { makeMap } from './map.js';
 import { makeSun } from './sun.js';
-import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
-import KeyboardState from '../libs/util/KeyboardState.js';
+import { GLTFLoader } from './build/jsm/loaders/GLTFLoader.js';
+import KeyboardState from './libs/util/KeyboardState.js';
 import * as DSS from './deathStarSurface.js';
 
 let scene, renderer, camera, light, lerpCameraConfig,

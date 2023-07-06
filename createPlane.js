@@ -1,5 +1,5 @@
 import * as THREE from  'three';
-import {setDefaultMaterial} from "../libs/util/util.js";
+import {setDefaultMaterial} from "./libs/util/util.js";
 
 export function createPlane(scene){
     let material, materialDarkYellow, materialFan, materialFanRing, materialMotor, materialCabin;

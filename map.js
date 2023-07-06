@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as DSS from './deathStarSurface.js';
 import { getRndInteger } from './utils.js';
-import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from './build/jsm/loaders/GLTFLoader.js';
 import { getDeathStarSurface } from './deathStarSurface.js';
 
 function euclideanDistance(x1, y1, x2, y2) {
